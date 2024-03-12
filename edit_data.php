@@ -1,3 +1,5 @@
+<?php include "function.php";?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -68,7 +70,7 @@
 
     <div>
       <div class="d-flex w-100 justify-content-center align-items-center">
-          <button class="btn btn-success" form="plant_data">Save</button>
+          <button class="btn btn-success" form="plant_data" onclick="update_db()">Save</button>
           <a class="btn btn-danger" href="./index.php?">Cancel</a>
       </div>
     </div>

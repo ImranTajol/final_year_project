@@ -73,11 +73,34 @@
 
         var data = JSON.stringify({"C":command,"SA":button_value,"DA":mcu_id,"P":water_duration})
 
+        //send data to mcu then perform checking whether its their data or not. (broadcast)
+
     }
 
     function update_db()
     {
         //create connection
+        <?php include "db_connect.php";
+        
+        //$conn from db_connect.php
+         $db = $conn;
+        
+        
+        ?>
+
+
+        //extract data from form (since this function.php is imported into the edit_data.php)
+        //we can use the get element by ID
+        var vegeType = document.getElementById('vegeType').value;
+        var datePlant = document.getElementById('datePlant').value;
+        var microcontrollerID = document.getElementById('microcontrollerID').value;
+
+        <?php
+
+        $stmt_log = $db->prepare("INSERT INTO farm_details (plant_type, mcu_id, date_plant) VALUES (?, ?, ?)");
+				$stmt_log->bind_param('sssiis', $barcode, $tape_sender, $tape_receiver, $branch_id, $tape_status,$currentTimestamp);
+
+        ?>
     }
 
 
