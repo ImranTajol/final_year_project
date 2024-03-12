@@ -20,10 +20,12 @@ Connectivity:
   * MCU id
   * Plant age
  
-**Station Section (ESP32)**
+**Station Section (ESP32):**
 Establish connection with WEB UI using websocket (requires Wi-Fi connection)
+All Field MCU send data to ESP32
 Xampp -> localhost server (Allow connection within the same network)
 Broadcast data to Arduino MCU via HC12 module (433 MHz)
 
-**Field Section (Arduino UNO/Nano)**
+**Field Section (Arduino UNO/Nano):**
 Parse received data.. Data format: <C,SA,DA,P> ~ <Command, Source, Destination, Payload>
+MCU will check Destination Addr == Assigned address. If match, execute function based on command & payload.
