@@ -64,13 +64,13 @@ $button_id = $_GET['button_id'];
       <input type="hidden" id="plot_id" name="plot_id" value=<?php echo $button_id?>>
 
       <label for="vegeType">Vege Type:</label>
-      <input type="text" id="vegeType" name="vegeType">
+      <input required type="text" id="vegeType" name="vegeType">
 
       <label for="datePlant">Date Plant:</label>
-      <input type="text" id="datePlant" name="datePlant">
+      <input required type="text" id="datePlant" name="datePlant">
 
       <label for="microcontrollerID">Microcontroller ID:</label>
-      <input type="text" id="microcontrollerID" name="microcontrollerID">
+      <input required type="text" id="microcontrollerID" name="microcontrollerID">
 
     </form>
 
@@ -92,6 +92,7 @@ $button_id = $_GET['button_id'];
 
   $('#plant_data').submit(function(e) {
     e.preventDefault();
+
 
     var formData = {
       plot_id: $("#plot_id").val(),
