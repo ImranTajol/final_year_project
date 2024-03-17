@@ -1,4 +1,8 @@
-<?php include "function.php";?>
+<?php include "function.php";
+
+$button_id = $_GET['button_id'];
+
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -57,6 +61,8 @@
   <div class="form-container">
     <form id = "plant_data" method="POST">
 
+      <input type="hidden" id="plot_id" name="plot_id" value=<?php echo $button_id?>>
+
       <label for="vegeType">Vege Type:</label>
       <input type="text" id="vegeType" name="vegeType">
 
@@ -70,7 +76,7 @@
 
     <div>
       <div class="d-flex w-100 justify-content-center align-items-center">
-          <button class="btn btn-success" form="plant_data" onclick="update_db()">Save</button>
+          <button class="btn btn-success" form="plant_data" >Save</button>
           <a class="btn btn-danger" href="./index.php?">Cancel</a>
       </div>
     </div>
@@ -84,58 +90,38 @@
 
 <script>
 
-function sendDataToESP32() {
-    var jsonData = {
-        vegeType: 'YourVegeTypeValue',
-        datePlant: 'YourDatePlantValue',
-        microcontrollerID: 'YourMicrocontrollerIDValue'
-    };
-
-    var xhr = new XMLHttpRequest();
-    var url = 'http://192.168.137.1/test'; // Replace with your ESP32 IP and endpoint
-    xhr.open('POST', url, true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState === XMLHttpRequest.DONE) {
-            if (xhr.status === 200) {
-                console.log('Data sent successfully to ESP32');
-                // Handle success response (if needed)
-            } else {
-                console.error('Failed to send data to ESP32');
-                // Handle error (if needed)
-            }
-        }
-    };
-
-    xhr.send(JSON.stringify(jsonData));
-}
-
-
-
   $('#plant_data').submit(function(e) {
     e.preventDefault();
 
-    sendDataToESP32();
-
-
-  //   var formData = {
-  //     vegeType: $("#vegeType").val(),
-  //     datePlant: $("#datePlant").val(),
-  //     microcontrollerID: $("#microcontrollerID").val(),
-  //   };
+    var formData = {
+      plot_id: $("#plot_id").val(),
+      vegeType: $("#vegeType").val(),
+      datePlant: $("#datePlant").val(),
+      microcontrollerID: $("#microcontrollerID").val(),
+    };
     
-  // $.ajax({
-  //     url: 'ajax.php?action=edit_data',
-  //     data: formData,
-  //     method: 'POST',
-  //     success: function(resp) {
-  //         console.log(resp);
-  //     },
-  //     error: function(xhr, status, error) {
-  //       console.log(xhr.responseText); // Log any server-side errors for debugging
-  //     }
-  // });
+  $.ajax({
+      url: 'ajax.php?action=edit_data',
+      data: formData,
+      method: 'POST',
+      success: function(resp) {
+        console.log(resp);
+        resp = JSON.parse(resp);
+        if(resp.status == "success")
+        {
+          setTimeout(function() {location.href("/index.php")},2000)
+        }
+        else
+        {
+          console.log("Data entry failed!");
+          setTimeout(function() {window.location.reload(relaod)},5000)
+
+        }
+      },
+      error: function(xhr, status, error) {
+        console.log(xhr.responseText); // Log any server-side errors for debugging
+      }
+  });
 
   });
 

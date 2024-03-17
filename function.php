@@ -1,17 +1,17 @@
 
 <script>
     
-    //var socket = new WebSocket('ws://IP of PC at port 81(based on websocket server setting)');
-    var socket = new WebSocket('ws://192.168.43.7:81');
+    // //var socket = new WebSocket('ws://IP of PC at port 81(based on websocket server setting)');
+    // var socket = new WebSocket('ws://192.168.43.7:81');
 
-    //placeholder
-    var mcu_id = 'main'
+    // //placeholder
+    // var mcu_id = 'main'
 
     
-    socket.onmessage = function(event)
-    {
-        console.log(event.data);
-    }
+    // socket.onmessage = function(event)
+    // {
+    //     console.log(event.data);
+    // }
     
 //=============================================================================
     // Command 1: water all plots
@@ -27,6 +27,7 @@
 // button to water all plots (command = 1)
     function water_all()
     {
+        
         // different command different action for watering system
         var command = 1;
 
@@ -75,32 +76,6 @@
 
         //send data to mcu then perform checking whether its their data or not. (broadcast)
 
-    }
-
-    function update_db()
-    {
-        //create connection
-        <?php include "db_connect.php";
-        
-        //$conn from db_connect.php
-         $db = $conn;
-        
-        
-        ?>
-
-
-        //extract data from form (since this function.php is imported into the edit_data.php)
-        //we can use the get element by ID
-        var vegeType = document.getElementById('vegeType').value;
-        var datePlant = document.getElementById('datePlant').value;
-        var microcontrollerID = document.getElementById('microcontrollerID').value;
-
-        <?php
-
-        $stmt_log = $db->prepare("INSERT INTO farm_details (plant_type, mcu_id, date_plant) VALUES (?, ?, ?)");
-				$stmt_log->bind_param('sssiis', $barcode, $tape_sender, $tape_receiver, $branch_id, $tape_status,$currentTimestamp);
-
-        ?>
     }
 
 

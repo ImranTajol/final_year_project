@@ -34,7 +34,8 @@
                 <!-- 1. button when click redirect to index.php and get the page
                       2. at the page, GET the id (respective to the button) -->
                     <a href="./index.php?page=water_manual&button_id=A" class="btn btn-primary">Water</a>
-                    <a href="edit_data.php" class="btn btn-success">Edit</a>
+                    <a href="./index.php?page=edit_data&button_id=A" class="btn btn-success">Edit</a>
+                    <!-- <a href="edit_data.php" class="btn btn-success">Edit</a> -->
 
                     <!-- POPUP TESTING
                     <button type="submit" class="btn btn-primary" onclick="openpopup()">Water Test</button>
