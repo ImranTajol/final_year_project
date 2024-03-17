@@ -115,7 +115,7 @@ $button_id = $_GET['button_id'];
         else
         {
           console.log("Data entry failed!");
-          setTimeout(function() {window.location.reload(relaod)},5000)
+          setTimeout(function() {location.href = location.href},3000)
 
         }
       },
