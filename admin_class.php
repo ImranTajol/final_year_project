@@ -21,11 +21,15 @@ Class Action {
 
         include "db_connect.php";
 
-        var_dump($_POST);
         extract($_POST);
         $vegeType = $_POST['vegeType'];
         $datePlant = $_POST['datePlant'];
         $microcontrollerID = $_POST['microcontrollerID'];
+
+        if(empty($vegeType) || empty($datePlant) || empty($microcontrollerID))
+        {
+            return json_encode(array("status" => "error", "message" => "Data field cannot be empty. Please insert value!"));
+        }
 
 
         $stmt_update = $conn->prepare("INSERT INTO farm_details (plot_id, plant_type, mcu_id, date_plant) VALUES (?, ?, ?, ?)");
