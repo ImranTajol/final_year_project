@@ -1,17 +1,17 @@
 
 <script>
     
-    // //var socket = new WebSocket('ws://IP of PC at port 81(based on websocket server setting)');
-    // var socket = new WebSocket('ws://192.168.43.7:81');
+    //var socket = new WebSocket('ws://IP of PC at port 81(based on websocket server setting)');
+    var socket = new WebSocket('ws://192.168.43.7:81');
 
-    // //placeholder
-    // var mcu_id = 'main'
+    //placeholder
+    var mcu_id = 'main'
 
     
-    // socket.onmessage = function(event)
-    // {
-    //     console.log(event.data);
-    // }
+    socket.onmessage = function(event)
+    {
+        console.log(event.data);
+    }
     
 //=============================================================================
     // Command 1: water all plots
@@ -20,8 +20,6 @@
     // command 4: sensors detect low moisture level
     // command 5: update field microcontroller eeprom data
 //=============================================================================
-
-
 
 
 // button to water all plots (command = 1)

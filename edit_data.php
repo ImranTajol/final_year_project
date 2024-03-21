@@ -67,7 +67,7 @@ $button_id = $_GET['button_id'];
       <input required type="text" id="vegeType" name="vegeType">
 
       <label for="datePlant">Date Plant:</label>
-      <input required type="text" id="datePlant" name="datePlant">
+      <input required class="form-control" type="date" id="datePlant" name="datePlant">
 
       <label for="microcontrollerID">Microcontroller ID:</label>
       <input required type="text" id="microcontrollerID" name="microcontrollerID">
@@ -110,12 +110,14 @@ $button_id = $_GET['button_id'];
         resp = JSON.parse(resp);
         if(resp.status == "success")
         {
-          setTimeout(function() {location.href("/index.php")},2000)
+          setTimeout(function() {location.href = "./index.php";},2000)
+          
         }
         else
         {
           console.log("Data entry failed!");
-          setTimeout(function() {location.href = location.href},3000)
+          setTimeout(function() {location.href = location.href;},3000)
+          header("REfresh:0")
 
         }
       },

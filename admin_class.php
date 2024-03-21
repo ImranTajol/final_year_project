@@ -19,6 +19,10 @@ Class Action {
 
     function edit_data(){
 
+        //mysql to find date difference
+        //SELECT plot_id, date_plant, FLOOR(DATEDIFF(CURRENT_DATE, date_plant)) AS duration FROM farm_details;
+
+
         include "db_connect.php";
 
         extract($_POST);
@@ -56,7 +60,6 @@ Class Action {
     
 
 
-        //--------------------------------
     }
 
 }
