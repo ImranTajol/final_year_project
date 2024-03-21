@@ -67,9 +67,8 @@
             </div>
 
             <div class="square" onclick="redirect('C')">
-          
-            <h3>Plot C</h3>
-                <div class="inner-div">Vege Type:</div>
+              <h3>Plot C</h3>
+                  <div class="inner-div">Vege Type:</div>
                   <div class="inner-div">Moist Level:</div>
                   <div class="inner-div">Plant Age:</div> 
                   <div class="inner-div">MCU ID:</div>
@@ -79,9 +78,10 @@
                     <a href="./index.php?page=edit_data&button_id=C" class="btn btn-success">Edit</a>
 
                   </div>
-                </div>
+            </div>
+
+
             <div class="square" onclick="redirect('D')">
-          
               <h3>Plot D</h3>
                 <div class="inner-div">Vege Type:</div>
                   <div class="inner-div">Moist Level:</div>
@@ -94,7 +94,6 @@
 
                   </div>
             </div>
-
 
             <!-- row-wrap -->
         </div>
@@ -115,7 +114,7 @@
             </div>
 
             <div class="square" onclick="redirect('F')">
-            <div class="square" >
+              
               <h3>Plot F</h3>
                 <div class="inner-div">Vege Type:</div>
                   <div class="inner-div">Moist Level:</div>
@@ -131,7 +130,7 @@
 
             <div class="square" onclick="redirect('G')">
           
-            <h3>Plot G</h3>
+              <h3>Plot G</h3>
                 <div class="inner-div">Vege Type:</div>
                   <div class="inner-div">Moist Level:</div>
                   <div class="inner-div">Plant Age:</div> 
@@ -142,7 +141,9 @@
                     <a href="./index.php?page=edit_data&button_id=G" class="btn btn-success">Edit</a>
 
                   </div>
-                </div>
+            </div>
+
+
             <div class="square" onclick="redirect('H')">
           
               <h3>Plot H</h3>
@@ -160,11 +161,13 @@
 
         </div>
         
+        
     </div>
 
-    <button class="open-button" onclick="openForm()">Open Form</button>
 
-<div class="form-popup" id="myForm">
+    <!-- <button class="open-button" onclick="openForm()">Open Form</button> -->
+
+<!-- <div class="form-popup" id="myForm">
   <form action="/action_page.php" class="form-container">
     <h1>Login</h1>
 
@@ -177,7 +180,7 @@
     <button type="submit" class="btn">Login</button>
     <button type="button" class="btn cancel" onclick="closeForm()">Close</button>
   </form>
-</div>
+</div> -->
 
   <script>
     function redirect(letter) {
