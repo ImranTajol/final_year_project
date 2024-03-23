@@ -22,11 +22,10 @@
 //=============================================================================
 
 
-
-
 // button to water all plots (command = 1)
     function water_all()
     {
+        
         // different command different action for watering system
         var command = 1;
 
@@ -73,11 +72,8 @@
 
         var data = JSON.stringify({"C":command,"SA":button_value,"DA":mcu_id,"P":water_duration})
 
-    }
+        //send data to mcu then perform checking whether its their data or not. (broadcast)
 
-    function update_db()
-    {
-        //create connection
     }
 
 

@@ -1,4 +1,4 @@
-<!-- <?php include "function.php" ?> -->
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -11,7 +11,7 @@
 
 <link rel="stylesheet" href="styles.css">
 
-  <title>Clickable Squares</title>
+  <title>IoT Programmable Vegetable Farm</title>
   <style>
     /* Styling for the squares */
     .square-container {

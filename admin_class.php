@@ -19,10 +19,36 @@ Class Action {
 
     function edit_data(){
 
+        //mysql to find date difference
+        //SELECT plot_id, date_plant, FLOOR(DATEDIFF(CURRENT_DATE, date_plant)) AS duration FROM farm_details;
+
+
+        include "db_connect.php";
+
         extract($_POST);
         $vegeType = $_POST['vegeType'];
         $datePlant = $_POST['datePlant'];
         $microcontrollerID = $_POST['microcontrollerID'];
+
+        if(empty($vegeType) || empty($datePlant) || empty($microcontrollerID))
+        {
+            return json_encode(array("status" => "error", "message" => "Data field cannot be empty. Please insert value!"));
+        }
+
+
+        $stmt_update = $conn->prepare("INSERT INTO farm_details (plot_id, plant_type, mcu_id, date_plant) VALUES (?, ?, ?, ?)");
+        $stmt_update->bind_param('ssss', $plot_id, $vegeType, $microcontrollerID, $datePlant);
+
+            // Execute the prepared statement
+                if ($stmt_update->execute()) {
+
+                } else {
+                    echo "Error: " . $stmt->error;
+                }
+
+                $stmt_update->close();
+
+        $conn->close();
 
         return json_encode(array("status" => "success", "message" => "Operation successful!!"));
 
@@ -34,7 +60,6 @@ Class Action {
     
 
 
-        //--------------------------------
     }
 
 }

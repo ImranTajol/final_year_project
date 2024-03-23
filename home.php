@@ -34,7 +34,8 @@
                 <!-- 1. button when click redirect to index.php and get the page
                       2. at the page, GET the id (respective to the button) -->
                     <a href="./index.php?page=water_manual&button_id=A" class="btn btn-primary">Water</a>
-                    <a href="edit_data.php" class="btn btn-success">Edit</a>
+                    <a href="./index.php?page=edit_data&button_id=A" class="btn btn-success">Edit</a>
+                    <!-- <a href="edit_data.php" class="btn btn-success">Edit</a> -->
 
                     <!-- POPUP TESTING
                     <button type="submit" class="btn btn-primary" onclick="openpopup()">Water Test</button>
@@ -59,28 +60,28 @@
                   <div class="inner-div">MCU ID:</div>
                   <div>
 
-                    <a href="water_manual.php?button_id=B" class="btn btn-primary">Water</a>
-                    <a href="edit_data.php" class="btn btn-success">Edit</a>
+                    <a href="./index.php?page=water_manual&button_id=B" class="btn btn-primary">Water</a>
+                    <a href="./index.php?page=edit_data&button_id=B" class="btn btn-success">Edit</a>
 
                 </div>
             </div>
 
             <div class="square" onclick="redirect('C')">
-          
-            <h3>Plot C</h3>
-                <div class="inner-div">Vege Type:</div>
+              <h3>Plot C</h3>
+                  <div class="inner-div">Vege Type:</div>
                   <div class="inner-div">Moist Level:</div>
                   <div class="inner-div">Plant Age:</div> 
                   <div class="inner-div">MCU ID:</div>
                   <div>
 
-                      <button class="btn btn-primary">Water</button>
-                      <button class="btn btn-success">Edit</button>
+                  <a href="./index.php?page=water_manual&button_id=C" class="btn btn-primary">Water</a>
+                    <a href="./index.php?page=edit_data&button_id=C" class="btn btn-success">Edit</a>
 
                   </div>
-                </div>
+            </div>
+
+
             <div class="square" onclick="redirect('D')">
-          
               <h3>Plot D</h3>
                 <div class="inner-div">Vege Type:</div>
                   <div class="inner-div">Moist Level:</div>
@@ -88,32 +89,32 @@
                   <div class="inner-div">MCU ID:</div>
                   <div>
 
-                      <button class="btn btn-primary">Water</button>
-                      <button class="btn btn-success">Edit</button>
+                  <a href="./index.php?page=water_manual&button_id=D" class="btn btn-primary">Water</a>
+                    <a href="./index.php?page=edit_data&button_id=D" class="btn btn-success">Edit</a>
 
                   </div>
             </div>
-
 
             <!-- row-wrap -->
         </div>
 
         <div class="row">
 
-            <div class="square" onclick="redirect('A')">
+            <div class="square" onclick="redirect('E')">
                 <h3>Plot E</h3>
                 <div class="inner-div">Vege Type:</div>
                 <div class="inner-div">Moist Level:</div>
                 <div class="inner-div">Plant Age:</div> 
                 <div class="inner-div">MCU ID:</div>
                 <div>
-                    <button class="btn btn-primary">Water</button>
-                    <button class="btn btn-success">Edit</button>
+                <a href="./index.php?page=water_manual&button_id=E" class="btn btn-primary">Water</a>
+                    <a href="./index.php?page=edit_data&button_id=E" class="btn btn-success">Edit</a>
                 </div>
 
             </div>
 
-            <div class="square" >
+            <div class="square" onclick="redirect('F')">
+              
               <h3>Plot F</h3>
                 <div class="inner-div">Vege Type:</div>
                   <div class="inner-div">Moist Level:</div>
@@ -121,27 +122,29 @@
                   <div class="inner-div">MCU ID:</div>
                   <div>
 
-                      <button class="btn btn-primary">Water</button>
-                      <button class="btn btn-success">Edit</button>
+                  <a href="./index.php?page=water_manual&button_id=F" class="btn btn-primary">Water</a>
+                    <a href="./index.php?page=edit_data&button_id=F" class="btn btn-success">Edit</a>
 
                 </div>
             </div>
 
-            <div class="square" onclick="redirect('C')">
+            <div class="square" onclick="redirect('G')">
           
-            <h3>Plot G</h3>
+              <h3>Plot G</h3>
                 <div class="inner-div">Vege Type:</div>
                   <div class="inner-div">Moist Level:</div>
                   <div class="inner-div">Plant Age:</div> 
                   <div class="inner-div">MCU ID:</div>
                   <div>
 
-                      <button class="btn btn-primary">Water</button>
-                      <button class="btn btn-success">Edit</button>
+                  <a href="./index.php?page=water_manual&button_id=G" class="btn btn-primary">Water</a>
+                    <a href="./index.php?page=edit_data&button_id=G" class="btn btn-success">Edit</a>
 
                   </div>
-                </div>
-            <div class="square" onclick="redirect('D')">
+            </div>
+
+
+            <div class="square" onclick="redirect('H')">
           
               <h3>Plot H</h3>
                 <div class="inner-div">Vege Type:</div>
@@ -150,19 +153,21 @@
                   <div class="inner-div">MCU ID:</div>
                   <div>
 
-                      <button class="btn btn-primary">Water</button>
-                      <button class="btn btn-success">Edit</button>
+                  <a href="./index.php?page=water_manual&button_id=H" class="btn btn-primary">Water</a>
+                    <a href="./index.php?page=edit_data&button_id=H" class="btn btn-success">Edit</a>
 
                   </div>
             </div>
 
         </div>
         
+        
     </div>
 
-    <button class="open-button" onclick="openForm()">Open Form</button>
 
-<div class="form-popup" id="myForm">
+    <!-- <button class="open-button" onclick="openForm()">Open Form</button> -->
+
+<!-- <div class="form-popup" id="myForm">
   <form action="/action_page.php" class="form-container">
     <h1>Login</h1>
 
@@ -175,7 +180,7 @@
     <button type="submit" class="btn">Login</button>
     <button type="button" class="btn cancel" onclick="closeForm()">Close</button>
   </form>
-</div>
+</div> -->
 
   <script>
     function redirect(letter) {
