@@ -135,7 +135,7 @@ void loop() {
     
         
         //read moisture sensor.. get the average
-//          avg_moisture = read_soil_moisture(payloadFromESP);
+        avg_moisture = read_soil_moisture(payloadFromESP);
         Serial.println("Done read soil moisture!");
         delay(200);
 

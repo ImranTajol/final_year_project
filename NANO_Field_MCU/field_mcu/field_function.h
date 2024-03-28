@@ -113,26 +113,37 @@ uint16_t read_soil_moisture(char* payloadFromESP)
   if(*payloadFromESP == plot1)  //compare char
   {
     //read plot A moisture
+    delay(300);
     Serial.println("Read Plot A");
-    uint16_t adc0 = ads1.readADC_SingleEnded(0)/4;
-    uint16_t adc1 = ads1.readADC_SingleEnded(1)/4;
-    uint16_t adc2 = ads1.readADC_SingleEnded(2)/4;
-    uint16_t adc3 = ads1.readADC_SingleEnded(3)/4;
+
+    uint16_t adc0 = 4;
+    uint16_t adc1 = 4;
+    uint16_t adc2 = 4;
+    uint16_t adc3 = 4;
+//    uint16_t adc0 = ads1.readADC_SingleEnded(0)/4;
+//    uint16_t adc1 = ads1.readADC_SingleEnded(1)/4;
+//    uint16_t adc2 = ads1.readADC_SingleEnded(2)/4;
+//    uint16_t adc3 = ads1.readADC_SingleEnded(3)/4;
 
     return adc0+adc1+adc2+adc3;
-    
+    delay(300);
   }
   if(*payloadFromESP == plot2)
   {
     //read plot B moisture
     Serial.println("Read Plot B");
-    uint16_t adc0 = ads2.readADC_SingleEnded(0)/4;
-    uint16_t adc1 = ads2.readADC_SingleEnded(1)/4;
-    uint16_t adc2 = ads2.readADC_SingleEnded(2)/4;
-    uint16_t adc3 = ads2.readADC_SingleEnded(3)/4;
+    delay(300);
+    uint16_t adc0 = 5;
+    uint16_t adc1 = 5;
+    uint16_t adc2 = 5;
+    uint16_t adc3 = 5;
+//    uint16_t adc0 = ads2.readADC_SingleEnded(0)/4;
+//    uint16_t adc1 = ads2.readADC_SingleEnded(1)/4;
+//    uint16_t adc2 = ads2.readADC_SingleEnded(2)/4;
+//    uint16_t adc3 = ads2.readADC_SingleEnded(3)/4;
 
     return adc0+adc1+adc2+adc3;
-    
+    delay(300);
   }
   
 }//end read soil moisture func
