@@ -110,8 +110,10 @@ int check_destination_address()
 uint16_t read_soil_moisture(char* payloadFromESP)
 {
   //check payload with address
-  if(*payloadFromESP == plot1)
+  if(*payloadFromESP == plot1)  //compare char
   {
+    //read plot A moisture
+    Serial.println("Read Plot A");
     uint16_t adc0 = ads1.readADC_SingleEnded(0)/4;
     uint16_t adc1 = ads1.readADC_SingleEnded(1)/4;
     uint16_t adc2 = ads1.readADC_SingleEnded(2)/4;
@@ -122,6 +124,8 @@ uint16_t read_soil_moisture(char* payloadFromESP)
   }
   if(*payloadFromESP == plot2)
   {
+    //read plot B moisture
+    Serial.println("Read Plot B");
     uint16_t adc0 = ads2.readADC_SingleEnded(0)/4;
     uint16_t adc1 = ads2.readADC_SingleEnded(1)/4;
     uint16_t adc2 = ads2.readADC_SingleEnded(2)/4;
@@ -146,6 +150,8 @@ void formatData(char* dataToTx, uint8_t* C, char* SA, char* DA, uint16_t* payloa
 void txData_HC12(char* s)
 {
   //iterate each byte in string for transmission
+  Serial.print("To send to ESP: ");
+  Serial.println(s);
   for(int i=0; i < strlen(s); i++)
   {
     HC12.write(s[i]);
