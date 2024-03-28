@@ -35,6 +35,20 @@ void recvWithStartEndMarkers() {
     }
 }
 
+void remove_spaces (char* str_trimmed, const char* str_untrimmed)
+{
+  while (*str_untrimmed != '\0')
+  {
+    if(!isspace(*str_untrimmed))
+    {
+      *str_trimmed = *str_untrimmed;
+      str_trimmed++;
+    }
+    str_untrimmed++;
+  }
+  *str_trimmed = '\0';
+}
+
 
 void parseData() {      // split the data into its parts
 
@@ -61,9 +75,9 @@ void parseData() {      // split the data into its parts
     strtokIndx = strtok(NULL, ","); // this continues where the previous call left off
     strcpy(DA, strtokIndx); // copy it to DA
 
-    strtokIndx = strtok(NULL,",");      // get the first part - the string
-    payloadFromESP = atoi(strtokIndx);     // convert this part to an integer
-
+    strtokIndx = strtok(NULL,",");      // get the first part - the string+
+    strcpy(payloadFromESP, strtokIndx);
+    
 }
 
 
@@ -82,7 +96,8 @@ int check_source_address()
 
 int check_destination_address()
 {
-  if(DA == mcu_id)
+  //strcmp return 0 if both string equal
+  if(strcmp(mcu_id,DA) == 0)
   {
     return 1;
   }
@@ -118,18 +133,20 @@ uint16_t read_soil_moisture(char* payloadFromESP)
   
 }//end read soil moisture func
 
-void formatData(char* dataToTx, char* C, char* SA, char* DA, uint16_t* payload)
+void formatData(char* dataToTx, uint8_t* C, char* SA, char* DA, uint16_t* payload)
 {
   //combine the string and put it into dataToTx char array using the pointer
   //need *C in the sprintf because %c require char.. C is the address. *C to dereference it
-  sprintf(dataToTx,"<%c,%c,%c,%u>", *C, *SA, *DA, *P);
+  //SA and DA no need *... because it will dereference the first element in the array
+  //ex: if char[] SA="SA".....*SA -> 'S' instead of "SA"
+  sprintf(dataToTx,"<%u,%s,%s,%u>", *C, SA, DA, *payload);
   
 }
 
 void txData_HC12(char* s)
 {
   //iterate each byte in string for transmission
-  for(int i=0; i < strlen(s): i++)
+  for(int i=0; i < strlen(s); i++)
   {
     HC12.write(s[i]);
   }
@@ -140,6 +157,7 @@ void txData_HC12(char* s)
 
 
 void showParsedData() {
+    Serial.println("----PARSED DATA--------------------------");
     Serial.print("Command ");
     Serial.println(command);
     Serial.print("SA ");
@@ -147,7 +165,9 @@ void showParsedData() {
     Serial.print("DA ");
     Serial.println(DA);
     Serial.print("Payload ");
-    Serial.println(payload);
+    Serial.println(payloadFromESP);
+    Serial.println("-----------------------------------------");
+    Serial.println("");
 }
 
 
