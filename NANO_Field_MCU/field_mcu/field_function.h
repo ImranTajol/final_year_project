@@ -116,11 +116,11 @@ uint16_t read_soil_moisture(char* payloadFromESP)
     delay(300);
     Serial.println("Read Plot A");
 
-    uint16_t adc0 = 4;
+//    uint16_t adc0 = 4;
     uint16_t adc1 = 4;
     uint16_t adc2 = 4;
     uint16_t adc3 = 4;
-//    uint16_t adc0 = ads1.readADC_SingleEnded(0)/4;
+    uint16_t adc0 = ads1.readADC_SingleEnded(0)/4;
 //    uint16_t adc1 = ads1.readADC_SingleEnded(1)/4;
 //    uint16_t adc2 = ads1.readADC_SingleEnded(2)/4;
 //    uint16_t adc3 = ads1.readADC_SingleEnded(3)/4;
