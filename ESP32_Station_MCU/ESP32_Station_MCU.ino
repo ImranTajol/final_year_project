@@ -5,6 +5,7 @@
 #include <ArduinoJson.h>
 #include <ArduinoWebsockets.h>
 #include <SoftwareSerial.h>
+#include "function.h"
 
 
 //------------------------
@@ -79,6 +80,22 @@ void loop() {
   }
 
   socket.poll(); //transfer control to appropriate function to handle event message
+
+  recvWithStartEndMarkers();
+  if (newData == true) {
+        strcpy(tempChars, receivedChars);
+            // this temporary copy is necessary to protect the original data
+            //   because strtok() used in parseData() replaces the commas with \0
+        parseData();
+        showParsedData();
+        newData = false;
+    }
+
+    delay(100);
+  // ==== Sending data from one HC-12 to another via the Serial Monitor
+  while (Serial.available()) {
+    HC12.write(Serial.read());
+  }
 
 }
 
