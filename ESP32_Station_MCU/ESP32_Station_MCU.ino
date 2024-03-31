@@ -6,11 +6,37 @@
 #include <ArduinoWebsockets.h>
 #include <SoftwareSerial.h>
 
+
+//------------------------
+//5 --> HC12 Tx
+//18 --> HC12 Rx
+//3.3V --> VCC
+//Gnd --> Gnd
+//------------------------
+
 #define RX 5
 #define TX 18
 
+#define mcu_id "smcu1"
+#define ADDR_LENGTH 10
+
 using namespace websockets;
 
+//variable for parsed data (LATEST)
+uint8_t command = 0;
+char SA[ADDR_LENGTH];
+char DA[ADDR_LENGTH];
+int payloadFromNANO;
+
+boolean newData = false;
+
+int BAUD_RATE = 9600;
+EspSoftwareSerial::UART HC12;
+
+//for incoming data using HC12
+byte incomingByte;
+String readBuffer = "";
+String receivedData = "";
 
 //FUNCTION DEFINITION
 void connect_Wifi();
@@ -25,11 +51,8 @@ WebsocketsClient socket;
 const char* websocketServer = "ws://192.168.43.7:81/";
 boolean connected = false;
 
-const char* ssid = "Cobra-chann";
-const char* password = "imrantajol";
-
-EspSoftwareSerial::UART HC12;
-int BAUD_RATE = 9600;
+const char* ssid = "TKRIB_2.4G";
+const char* password = "kamsiah062011";
 
 
 //=============================================================SETUP AND LOOP==========================================================================
@@ -116,6 +139,16 @@ void parseJsonData(String data_from_ws)
   Serial.println(payload);
 
   mcu_operation(command);
+
+  //format between HC12
+  // <command,SA,DA,payload>
+  //ex: String HC12_data = 
+  //    char formattedString[100];
+  //    int num1 =4;
+  //    int num2 = 6;
+  //    char* payload = "jack";
+  //    sprintf(formattedString, "<command,%d,%d,%s>", num1, num2, payload);
+  //    printf("Formatted string: %s\n", formattedString);  
 }
 
 
