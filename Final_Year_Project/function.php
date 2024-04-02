@@ -2,10 +2,10 @@
 <script>
     
     //var socket = new WebSocket('ws://IP of PC at port 81(based on websocket server setting)');
-    var socket = new WebSocket('ws://192.168.43.7:81');
+    var socket = new WebSocket('ws://192.168.1.102:81');
 
     //placeholder
-    var mcu_id = 'main'
+    var MCU_ID = 'main'
 
     
     socket.onmessage = function(event)
@@ -31,7 +31,7 @@
 
         //need function to retrieve data from database for each plot
 
-        var data = JSON.stringify({"C":command,"SA":button_value,"DA":mcu_id,"P":intval(water_duration)})
+        var data = JSON.stringify({"C":command,"SA":MCU_ID,"DA":"*","P":intval(water_duration)})
         socket.send(data)
     }
 
@@ -51,8 +51,8 @@
         var water_duration =parseInt(duration);
         // socket.send('Watering Duration: '+ water_duration+'\n');
 
-        // var formatData = '|'+command+'|'+mcu_id+'|'+button_value+'|'+water_duration;
-        var data = JSON.stringify({"C":command,"SA":button_value,"DA":mcu_id,"P":water_duration})
+        // var formatData = '|'+command+'|'+MCU_ID+'|'+button_value+'|'+water_duration;
+        var data = JSON.stringify({"C":command,"SA":MCU_ID,"DA":button_value,"P":water_duration})
         socket.send(data)
     }
 
@@ -61,7 +61,7 @@
     {
         var command = 3;
 
-        var data = JSON.stringify({"C":command,"SA":button_value,"DA":mcu_id,"P":water_duration})
+        var data = JSON.stringify({"C":command,"SA":button_value,"DA":MCU_ID,"P":water_duration})
 
     }
 
@@ -70,7 +70,7 @@
     {
         var command = 5;
 
-        var data = JSON.stringify({"C":command,"SA":button_value,"DA":mcu_id,"P":water_duration})
+        var data = JSON.stringify({"C":command,"SA":button_value,"DA":MCU_ID,"P":water_duration})
 
         //send data to mcu then perform checking whether its their data or not. (broadcast)
 
