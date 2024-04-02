@@ -59,7 +59,7 @@ class MyWebSocket implements MessageComponentInterface{
 #port 81 used... 65535 available port in a computer
 #binding ip 0.0.0.0 --> server listen form any IP address(similar to subnet)
 #using 'localhost' does not allow external client to connect.. put PC IP ADDRESS.
-$app = new Ratchet\App('192.168.43.7',81,'0.0.0.0');
+$app = new Ratchet\App('192.168.1.102',81,'0.0.0.0');
 $app->route('/',new MyWebSocket,array('*'));
 
 $app->run();
