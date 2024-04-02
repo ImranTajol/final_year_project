@@ -51,7 +51,7 @@ char DA[ADDR_LENGTH];
 uint8_t payloadFromESP;
 
 boolean newData = false;
-boolean doneTransmit = false;
+boolean doneTransmit = false; // to check current data already transmit
 
 int BAUD_RATE = 9600;
 SoftwareSerial HC12(10, 11); //RX(connect to module Tx),TX(Connect to module Rx)
