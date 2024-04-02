@@ -5,40 +5,90 @@
 #include <ArduinoJson.h>
 #include <ArduinoWebsockets.h>
 #include <SoftwareSerial.h>
+//#include "station_function.h"
+
+
+//------------------------
+//5 --> HC12 Tx
+//18 --> HC12 Rx
+//3.3V --> VCC
+//Gnd --> Gnd
+//------------------------
+
+//FUNCTION DEFINITION
+void connect_Wifi();
+void connect_webSocket(const char* );
+//void handleMessage(WebsocketsMessage);
+//void handleEvent(WebsocketsEvent, WSInterfaceString );
+
+//=============================================================================
+    // Command 1: water all plots
+    // command 2: water specific plot
+    // Command 3: station request data from field
+    // command 4: sensors detect low moisture level
+    // command 5: update field microcontroller eeprom data
+//=============================================================================
 
 #define RX 5
 #define TX 18
 
+#define MCU_ID "smcu1"
+#define ADDR_LENGTH 10
+
 using namespace websockets;
 
+const byte numChars = 32; //array size
+char receivedChars[numChars];
+char tempChars[numChars]; 
 
-//FUNCTION DEFINITION
-void connect_Wifi();
-void connect_webSocket(const char* websocketServer);
-void handleEvent(WebsocketsEvent event, WSInterfaceString data);
-void handleMessage(WebsocketsMessage message);
-void mcu_operation(int command);
-void water_all();
-void water_plot();
+
+boolean newData = false;
+boolean doneExecuteOperation= false;
+
+int BAUD_RATE = 9600;
+EspSoftwareSerial::UART HC12;
+
+//for incoming data using HC12(temporary)
+byte incomingByte;
+String readBuffer = "";
+String receivedData = "";
+
 
 WebsocketsClient socket;
-const char* websocketServer = "ws://192.168.43.7:81/";
+const char* websocketServer = "ws://192.168.1.102:81/";
 boolean connected = false;
 
-const char* ssid = "Cobra-chann";
-const char* password = "imrantajol";
+const char* ssid = "TKRIB_2.4G";
+const char* password = "kamsiah062011";
 
-EspSoftwareSerial::UART HC12;
-int BAUD_RATE = 9600;
+
+////variable for data from HC12 (using global variable)
+//uint8_t command = 0;
+//char SA[ADDR_LENGTH];
+//char DA[ADDR_LENGTH];
+//int payloadFromNANO;
+
+//variable for data from ws and HC12
+struct parsedData{
+  int command;
+  char source_addr[ADDR_LENGTH];
+  char destination_addr[ADDR_LENGTH];
+  int payload;
+};
+
+parsedData myData; //instantiate struct
+
+//include user defined libary
+#include "station_function.h"
 
 
 //=============================================================SETUP AND LOOP==========================================================================
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(9600); // setup serial monitor
+  HC12.begin(BAUD_RATE, EspSoftwareSerial::SWSERIAL_8N1, RX, TX);//setup HC12 UART
 
-  //setup HC12 UART
-  HC12.begin(BAUD_RATE, EspSoftwareSerial::SWSERIAL_8N1, RX, TX);
+  
   
   connect_Wifi(); // function has while loop to ensure connection is established
   connect_webSocket(websocketServer);
@@ -48,6 +98,7 @@ void setup() {
 }
 
 void loop() {
+  //connected bool is set when websocket successful connection
   if(!connected)
   {
     Serial.println("Connecting to WebSocket server");
@@ -57,7 +108,32 @@ void loop() {
 
   socket.poll(); //transfer control to appropriate function to handle event message
 
-}
+  recvWithStartEndMarkers(); //handle if data receive through UART
+  if (newData == true) {
+    
+        // copy is necessary to protect the original data
+        // because strtok() used in parseDataFromHC12() replaces the commas with \0
+        strcpy(tempChars, receivedChars);  
+        parseDataFromHC12(&myData);
+        showParsedData(myData); //display parsed data
+        newData = false;
+    }
+
+  delay(200);
+  // ==== Sending data from one HC-12 to another via the Serial Monitor
+  while (Serial.available()) {
+    HC12.write(Serial.read());
+  }
+  delay(200);
+
+  //check if there is new that is not executed using function..check destination is correct..ignore if wrong
+  if(newData == true && doneExecuteOperation == false && myData.destination_addr == MCU_ID)
+  {
+    mcu_operation(myData); //pass struct to function
+    doneExecuteOperation = true;
+  }
+
+}//end void loop
 
 //=======================================================================================================================================
 
@@ -73,6 +149,7 @@ void handleMessage(WebsocketsMessage message)
   if(message.data()!= "Welcome to the server.")
   {
     parseJsonData(message.data());
+    display_struct(myData);
   }
   
 }
@@ -84,85 +161,8 @@ void handleEvent(WebsocketsEvent event, WSInterfaceString data)
 
 //=======================================================================================================================================
 
-void parseJsonData(String data_from_ws)
-{
-  StaticJsonDocument<256> doc; //256 bytes buffer
-  // Deserialize the JSON document
-  DeserializationError error = deserializeJson(doc, data_from_ws);
-
-  // Test if parsing succeeds.
-  if (error) {
-    Serial.print(F("deserializeJson() failed: "));
-    Serial.print(data_from_ws);
-    Serial.println(error.c_str());
-    return;
-  }
-
-  int command = doc["C"];
-  const char * sa = doc["SA"];
-  const char * da = doc["DA"];
-  int payload = doc["P"];
 
 
-  Serial.print("JSON data received: ");
-  Serial.println(data_from_ws);
-  Serial.print("Command: ");
-  Serial.println(command);
-  Serial.print("Source Address: ");
-  Serial.println(sa);
-  Serial.print("Destination Address: ");
-  Serial.println(da);
-  Serial.print("Payload: ");
-  Serial.println(payload);
-
-  mcu_operation(command);
-}
-
-
-void mcu_operation(int command)
-{
-  switch (command)
-  {
-    case 1:
-      water_all();
-      break;
-
-    case 2:
-      water_plot();
-      break;
-
-    case 3:
-      //station request data from field
-      break;
-
-    case 4:
-      //sensors detect low moisture level
-      break;
-
-    case 5:
-      //update field microcontroller eeprom data
-      break;
-
-    default:
-      //undetermined command
-      break;
-  }
-  
-}
-
-void water_all()
-{
-  Serial.println("");
-  Serial.println("Watering all plots....");
-  Serial.println("");
-}
-
-void water_plot()
-{
-  Serial.println("");
-  Serial.println("Watering plot X....");
-  Serial.println("");
-}
 
 //================================================================INITIAL SETUP FUNCTIONS=======================================================================
 void connect_Wifi()
