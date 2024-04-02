@@ -8,6 +8,8 @@
 
 #define mcu_id "fmcu1"
 #define ADDR_LENGTH 10
+#define PLOT_1 65
+#define PLOT_2 66
 
 
 //HC12 pins connection------------------------
@@ -23,15 +25,13 @@
     // Command 3: station request data from field
     // command 4: sensors detect low moisture level
     // command 5: update field microcontroller eeprom data
-//    <3, smcu1, fmcu1, A>
+//    <3, smcu1, fmcu1, 65>
 //=============================================================================
 
 //=============================================================================
 //    ADS1115 addr => 0x48(GND), 0x49(VDD), 0x4A(SDA), 0x4B(SCL)
 //=============================================================================
 
-char plot1 = 'A';
-char plot2 = 'B';
 char formattedData[20];
 uint16_t avg_moisture;
 
@@ -48,7 +48,7 @@ float floatFromPC = 0.0;
 uint8_t command = 0;
 char SA[ADDR_LENGTH];
 char DA[ADDR_LENGTH];
-char payloadFromESP[2];
+uint8_t payloadFromESP;
 
 boolean newData = false;
 boolean doneTransmit = false;
@@ -136,10 +136,16 @@ void loop() {
           Serial.println("Source Address empty!");
           break;
         }
+
+        if(payloadFromESP < PLOT_1 || payloadFromESP > PLOT_2) //only ascii A and B
+        {
+          Serial.println("Assigned plot to mcu are A(65) & B(66)!");
+          break;
+        }
     
         
         //read moisture sensor.. get the average
-        avg_moisture = read_soil_moisture(payloadFromESP);
+        avg_moisture = read_soil_moisture(&payloadFromESP);
         Serial.println("Done read soil moisture!");
         delay(200);
 

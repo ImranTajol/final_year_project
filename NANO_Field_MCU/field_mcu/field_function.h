@@ -76,7 +76,7 @@ void parseData() {      // split the data into its parts
     strcpy(DA, strtokIndx); // copy it to DA
 
     strtokIndx = strtok(NULL,",");      // get the first part - the string+
-    strcpy(payloadFromESP, strtokIndx);
+    payloadFromESP = atoi(strtokIndx);
     
 }
 
@@ -107,10 +107,10 @@ int check_destination_address()
   }
 }
 
-uint16_t read_soil_moisture(char* payloadFromESP)
+uint16_t read_soil_moisture(uint8_t* payloadFromESP)
 {
   //check payload with address
-  if(*payloadFromESP == plot1)  //compare char
+  if(*payloadFromESP == PLOT_1)  //compare char
   {
     //read plot A moisture
     delay(300);
@@ -128,7 +128,7 @@ uint16_t read_soil_moisture(char* payloadFromESP)
     return adc0+adc1+adc2+adc3;
     delay(300);
   }
-  if(*payloadFromESP == plot2)
+  if(*payloadFromESP == PLOT_2)
   {
     //read plot B moisture
     Serial.println("Read Plot B");
