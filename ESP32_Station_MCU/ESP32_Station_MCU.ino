@@ -5,7 +5,7 @@
 #include <ArduinoJson.h>
 #include <ArduinoWebsockets.h>
 #include <SoftwareSerial.h>
-#include "station_function.h"
+//#include "station_function.h"
 
 
 //------------------------
@@ -14,6 +14,12 @@
 //3.3V --> VCC
 //Gnd --> Gnd
 //------------------------
+
+//FUNCTION DEFINITION
+void connect_Wifi();
+void connect_webSocket(const char* );
+//void handleMessage(WebsocketsMessage);
+//void handleEvent(WebsocketsEvent, WSInterfaceString );
 
 //=============================================================================
     // Command 1: water all plots
@@ -26,52 +32,63 @@
 #define RX 5
 #define TX 18
 
-#define mcu_id "smcu1"
+#define MCU_ID "smcu1"
 #define ADDR_LENGTH 10
 
 using namespace websockets;
 
-//variable for parsed data (LATEST) HC12
-uint8_t command = 0;
-char SA[ADDR_LENGTH];
-char DA[ADDR_LENGTH];
-int payloadFromNANO;
+const byte numChars = 32; //array size
+char receivedChars[numChars];
+char tempChars[numChars]; 
+
 
 boolean newData = false;
+boolean doneExecuteOperation= false;
 
 int BAUD_RATE = 9600;
 EspSoftwareSerial::UART HC12;
 
-//for incoming data using HC12
+//for incoming data using HC12(temporary)
 byte incomingByte;
 String readBuffer = "";
 String receivedData = "";
 
 
 WebsocketsClient socket;
-const char* websocketServer = "ws://192.168.43.7:81/";
+const char* websocketServer = "ws://192.168.1.102:81/";
 boolean connected = false;
 
 const char* ssid = "TKRIB_2.4G";
 const char* password = "kamsiah062011";
 
-struct parsedFromWS{
+
+////variable for data from HC12 (using global variable)
+//uint8_t command = 0;
+//char SA[ADDR_LENGTH];
+//char DA[ADDR_LENGTH];
+//int payloadFromNANO;
+
+//variable for data from ws and HC12
+struct parsedData{
   int command;
   char source_addr[ADDR_LENGTH];
   char destination_addr[ADDR_LENGTH];
   int payload;
 };
 
+parsedData myData; //instantiate struct
+
+//include user defined libary
+#include "station_function.h"
+
 
 //=============================================================SETUP AND LOOP==========================================================================
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(9600); // setup serial monitor
+  HC12.begin(BAUD_RATE, EspSoftwareSerial::SWSERIAL_8N1, RX, TX);//setup HC12 UART
 
-  parsedFromWS myData;
-
-  //setup HC12 UART
-  HC12.begin(BAUD_RATE, EspSoftwareSerial::SWSERIAL_8N1, RX, TX);
+  
   
   connect_Wifi(); // function has while loop to ensure connection is established
   connect_webSocket(websocketServer);
@@ -81,6 +98,7 @@ void setup() {
 }
 
 void loop() {
+  //connected bool is set when websocket successful connection
   if(!connected)
   {
     Serial.println("Connecting to WebSocket server");
@@ -90,23 +108,32 @@ void loop() {
 
   socket.poll(); //transfer control to appropriate function to handle event message
 
-  recvWithStartEndMarkers();
+  recvWithStartEndMarkers(); //handle if data receive through UART
   if (newData == true) {
-        strcpy(tempChars, receivedChars);
-            // this temporary copy is necessary to protect the original data
-            //   because strtok() used in parseData() replaces the commas with \0
-        parseData();
-        showParsedData();
+    
+        // copy is necessary to protect the original data
+        // because strtok() used in parseDataFromHC12() replaces the commas with \0
+        strcpy(tempChars, receivedChars);  
+        parseDataFromHC12(&myData);
+        showParsedData(myData); //display parsed data
         newData = false;
     }
 
-    delay(200);
+  delay(200);
   // ==== Sending data from one HC-12 to another via the Serial Monitor
   while (Serial.available()) {
     HC12.write(Serial.read());
   }
+  delay(200);
 
-}
+  //check if there is new that is not executed using function..check destination is correct..ignore if wrong
+  if(newData == true && doneExecuteOperation == false && myData.destination_addr == MCU_ID)
+  {
+    mcu_operation(myData); //pass struct to function
+    doneExecuteOperation = true;
+  }
+
+}//end void loop
 
 //=======================================================================================================================================
 
@@ -121,8 +148,8 @@ void handleMessage(WebsocketsMessage message)
   Serial.println(message.data());
   if(message.data()!= "Welcome to the server.")
   {
-    //arg: ws message , struct
-    parseJsonData(message.data(),&myData);
+    parseJsonData(message.data());
+    display_struct(myData);
   }
   
 }
