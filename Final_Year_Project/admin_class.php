@@ -86,7 +86,7 @@ Class Action {
         $result = $stmt_find_diff->get_result(); // get the mysqli result
         $user = $result->fetch_assoc(); // fetch data   
 
-        
+        $mcu_id = $user["mcu_id"];
         $crop = $user['plant_type']."_crop";
 
         $date_plant = new DateTime($user["date_plant"]); //create datetime object using retrieved date (string)
@@ -99,14 +99,15 @@ Class Action {
         $stmt_find_level->bind_param("s", $diff);
         $stmt_find_level->execute();
         $result = $stmt_find_level->get_result(); // get the mysqli result
-        $user = $result->fetch_assoc(); // fetch data   
+        $user = $result->fetch_assoc(); // fetch data   \
+
 
 
         // SELECT `id`, `crop_day`, `moisture_level`, `date_created` FROM `potato_crop` WHERE crop_day < 21 ORDER BY crop_day DESC limit 1
 
         $conn->close();
 
-        return json_encode(array("status" => "success", "message" => json_encode($user)));
+        return json_encode(array("status" => "success", "moisture_level" => $user["moisture_level"], "mcu_id" => $mcu_id));
 
 
     }
