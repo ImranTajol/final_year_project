@@ -101,13 +101,9 @@ Class Action {
         $result = $stmt_find_level->get_result(); // get the mysqli result
         $user = $result->fetch_assoc(); // fetch data   \
 
-
-
-        // SELECT `id`, `crop_day`, `moisture_level`, `date_created` FROM `potato_crop` WHERE crop_day < 21 ORDER BY crop_day DESC limit 1
-
         $conn->close();
 
-        return json_encode(array("status" => "success", "moisture_level" => $user["moisture_level"], "mcu_id" => $mcu_id));
+        return json_encode(array("status" => "success", "mcu_id" => $mcu_id, "moisture_level" => $user["moisture_level"], "plot_id" => $plot_id));
 
 
     }
