@@ -33,6 +33,7 @@
 
                 <!-- 1. button when click redirect to index.php and get the page
                       2. at the page, GET the id (respective to the button) -->
+                    <button name="water_plot" value="A" class="btn btn-primary">Water plot (test)</button>
                     <a href="./index.php?page=water_manual&button_id=A" class="btn btn-primary">Water</a>
                     <a href="./index.php?page=edit_data&button_id=A" class="btn btn-success">Edit</a>
                     <!-- <a href="edit_data.php" class="btn btn-success">Edit</a> -->
@@ -52,7 +53,7 @@
                 </div>
             </div>
 
-            <div class="square" onclick="redirect('B')">
+            <div class="square">
               <h3>Plot B</h3>
                 <div class="inner-div">Vege Type:</div>
                   <div class="inner-div">Moist Level:</div>
@@ -60,6 +61,7 @@
                   <div class="inner-div">MCU ID:</div>
                   <div>
 
+                    <button name="water_plot" value="B" class="btn btn-primary">Water plot (test)</button>
                     <a href="./index.php?page=water_manual&button_id=B" class="btn btn-primary">Water</a>
                     <a href="./index.php?page=edit_data&button_id=B" class="btn btn-success">Edit</a>
 
@@ -188,24 +190,49 @@
       window.location.href = 'redirect.php?letter=' + letter;
     }
 
-    function openForm() {
-      document.getElementById("myForm").style.display = "block";
-    }
-
-    function closeForm() {
-      document.getElementById("myForm").style.display = "none";
-    }
 
 
-    let popup =document.getElementById("popup");
+    $(document).ready(function() {
+    
+    $('button[name="water_plot"]').click(function(e) {
+    e.preventDefault();
 
-    function openpopup()
-    {
-        popup.classList.add("open-popup");
-    }
 
-    function closepopup()
-    {
-        popup.classList.remove("open-popup");
-    }
+    var formData = {
+      plot_id: $(this).val(),
+    };
+
+    
+  $.ajax({
+      url: 'ajax.php?action=water_plot',
+      data: formData,
+      method: 'POST',
+      success: function(resp) {
+        console.log(resp);
+        resp = JSON.parse(resp);
+        if(resp.status == "success")
+        {
+          newData = JSON.parse(resp.message);
+          console.log(newData.moisture_level);
+
+          //setTimeout(function() {location.href = "./index.php";},2000)
+          
+        }
+        else
+        {
+          console.log("Data entry failed!");
+          setTimeout(function() {location.href = location.href;},3000)
+          header("Refresh:0")
+
+        }
+      },
+      error: function(xhr, status, error) {
+        console.log("error to execute func");
+        console.log(xhr.responseText); // Log any server-side errors for debugging
+      }
+      });
+
+      })
+      
+    });
   </script>
