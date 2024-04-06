@@ -64,6 +64,7 @@ Class Action {
 
         // $current_date = date('Y-m-d');
         $current_date = new DateTime();
+        $current_date->setTimezone(new DateTimeZone('Asia/Jakarta'));
 
         include "db_connect.php";
 
@@ -77,8 +78,6 @@ Class Action {
         {
             return json_encode(array("status" => "error", "message" => "Data field cannot be empty. Please insert value!"));
         }
-
-        
         
         $stmt_find_diff = $conn->prepare("SELECT * FROM farm_details WHERE plot_id=?");
         $stmt_find_diff->bind_param("s", $plot_id);
@@ -89,11 +88,10 @@ Class Action {
         $mcu_id = $user["mcu_id"];
         $crop = $user['plant_type']."_crop";
 
-        $date_plant = new DateTime($user["date_plant"]); //create datetime object using retrieved date (string)
+        $date_plant = new DateTime($user["date_plant"], new DateTimeZone('Asia/Jakarta')); //create datetime object using retrieved date (string)
 
         //find date diff in terms of days(%d)..ex: 2024/3/19->diff(2024/4/4)->format("%d") = 16 days
-        $diff = $date_plant->diff($current_date)->format("%d");
-
+        $diff = $date_plant->diff($current_date)->format("%a");
 
         $stmt_find_level = $conn->prepare("SELECT moisture_level FROM $crop WHERE crop_day < ? ORDER BY crop_day DESC LIMIT 1");
         $stmt_find_level->bind_param("s", $diff);
