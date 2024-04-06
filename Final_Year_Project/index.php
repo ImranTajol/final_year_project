@@ -11,7 +11,7 @@
 
 <link rel="stylesheet" href="styles.css">
 
-  <title>IoT Programmable Vegetable Farm</title>
+  <title>IoT Programmable Vegetable Farm</title> 
   <style>
     /* Styling for the squares */
     .square-container {
