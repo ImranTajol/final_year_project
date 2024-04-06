@@ -57,6 +57,7 @@
                 </div>
             </div>
 
+            <div class="square">
               <h3>Plot C</h3>
                   <div class="inner-div">Vege Type:</div>
                   <div class="inner-div">Moist Level:</div>
@@ -69,7 +70,10 @@
 
                   </div>
 
+            </div>
 
+
+            <div class="square">
               <h3>Plot D</h3>
                 <div class="inner-div">Vege Type:</div>
                   <div class="inner-div">Moist Level:</div>
@@ -81,35 +85,50 @@
                     <a href="./index.php?page=edit_data&button_id=D" class="btn btn-success">Edit</a>
 
                   </div>
+            </div>
 
             <!-- row-wrap -->
         </div>
 
         <div class="row">
 
-                <h3>Plot E</h3>
-                <div class="inner-div">Vege Type:</div>
-                <div class="inner-div">Moist Level:</div>
-                <div class="inner-div">Plant Age:</div> 
-                <div class="inner-div">MCU ID:</div>
-                <div>
-                <a href="./index.php?page=water_manual&button_id=E" class="btn btn-primary">Water</a>
-                    <a href="./index.php?page=edit_data&button_id=E" class="btn btn-success">Edit</a>
-                </div>
+        <div class="square">
+          
+          
+          <h3>Plot E</h3>
+          <div class="inner-div">Vege Type:</div>
+          <div class="inner-div">Moist Level:</div>
+          <div class="inner-div">Plant Age:</div> 
+          <div class="inner-div">MCU ID:</div>
+          <div>
+            <a href="./index.php?page=water_manual&button_id=E" class="btn btn-primary">Water</a>
+            <a href="./index.php?page=edit_data&button_id=E" class="btn btn-success">Edit</a>
+          </div>
+          
+        </div>
 
 
-              <h3>Plot F</h3>
-                <div class="inner-div">Vege Type:</div>
-                  <div class="inner-div">Moist Level:</div>
-                  <div class="inner-div">Plant Age:</div> 
-                  <div class="inner-div">MCU ID:</div>
-                  <div>
+        <div class="square">
 
-                  <a href="./index.php?page=water_manual&button_id=F" class="btn btn-primary">Water</a>
-                    <a href="./index.php?page=edit_data&button_id=F" class="btn btn-success">Edit</a>
+          
+          <h3>Plot F</h3>
+          <div class="inner-div">Vege Type:</div>
+          <div class="inner-div">Moist Level:</div>
+          <div class="inner-div">Plant Age:</div> 
+          <div class="inner-div">MCU ID:</div>
+          <div>
+            
+            <a href="./index.php?page=water_manual&button_id=F" class="btn btn-primary">Water</a>
+            <a href="./index.php?page=edit_data&button_id=F" class="btn btn-success">Edit</a>
+            
+          </div>
+          
+        </div>
 
-                </div>
 
+        <div class="square">
+
+        
               <h3>Plot G</h3>
                 <div class="inner-div">Vege Type:</div>
                   <div class="inner-div">Moist Level:</div>
@@ -122,7 +141,10 @@
 
                   </div>
 
+        </div>
 
+
+        <div class="square">
           
               <h3>Plot H</h3>
                 <div class="inner-div">Vege Type:</div>
@@ -137,6 +159,8 @@
                   </div>
 
         </div>
+
+      </div>
         
         
     </div>
@@ -147,7 +171,7 @@
   <script>
 
     //placeholder
-    var MCU_ID = 'main';
+    var MCU_ID = 'smcu1'; //station MCU 1
 
     var socket = new WebSocket('ws://192.168.1.102:81');
 
