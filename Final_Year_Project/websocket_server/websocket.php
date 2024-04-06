@@ -35,8 +35,12 @@ class MyWebSocket implements MessageComponentInterface{
 
         foreach($this->connectedClients as $client){
             
-                echo "Client To All: {$from->resourceId}: {$msg} \n";
+            //not sending to own self
+            if(!($client->resourceId == $from->resourceId))
+            {
+                echo "Client {$from->resourceId} To All: : {$msg} \n";
                 $client->send($msg);
+            }
 
         }
 
