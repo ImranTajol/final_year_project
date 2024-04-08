@@ -14,17 +14,29 @@
 
 include "db_connect.php";
 
-$updated_moisture_query = "SELECT moisture_lvl FROM `moisture_log` WHERE plot_id = 'A' ORDER BY date_created DESC LIMIT 1";
+$get_latest_moisture_A = "SELECT moisture_lvl FROM `moisture_log` WHERE plot_id = 'A' ORDER BY date_created DESC LIMIT 1";
+$get_latest_moisture_B = "SELECT moisture_lvl FROM `moisture_log` WHERE plot_id = 'B' ORDER BY date_created DESC LIMIT 1";
+$get_latest_moisture_C = "SELECT moisture_lvl FROM `moisture_log` WHERE plot_id = 'C' ORDER BY date_created DESC LIMIT 1";
+$get_latest_moisture_D = "SELECT moisture_lvl FROM `moisture_log` WHERE plot_id = 'D' ORDER BY date_created DESC LIMIT 1";
+$get_latest_moisture_E = "SELECT moisture_lvl FROM `moisture_log` WHERE plot_id = 'E' ORDER BY date_created DESC LIMIT 1";
+$get_latest_moisture_F = "SELECT moisture_lvl FROM `moisture_log` WHERE plot_id = 'F' ORDER BY date_created DESC LIMIT 1";
+$get_latest_moisture_G = "SELECT moisture_lvl FROM `moisture_log` WHERE plot_id = 'G' ORDER BY date_created DESC LIMIT 1";
+$get_latest_moisture_H = "SELECT moisture_lvl FROM `moisture_log` WHERE plot_id = 'H' ORDER BY date_created DESC LIMIT 1";
+
+
+//latest query (9/4/2024)
+$get_farm_details_A = "SELECT * FROM `farm_details` WHERE plot_id = 'A'";
+$get_farm_details_B = "SELECT * FROM `farm_details` WHERE plot_id = 'B'";
 
 $home_page_display = [
-  ['A', $conn->query("SELECT moisture_lvl FROM `moisture_log` WHERE plot_id = 'A' ORDER BY date_created DESC LIMIT 1")->fetch_column()],
-  ['B', $conn->query("SELECT moisture_lvl FROM `moisture_log` WHERE plot_id = 'B' ORDER BY date_created DESC LIMIT 1")->fetch_column()],
-  ['C', $conn->query("SELECT moisture_lvl FROM `moisture_log` WHERE plot_id = 'C' ORDER BY date_created DESC LIMIT 1")->fetch_column()],
-  ['D', $conn->query("SELECT moisture_lvl FROM `moisture_log` WHERE plot_id = 'D' ORDER BY date_created DESC LIMIT 1")->fetch_column()],
-  ['E', $conn->query("SELECT moisture_lvl FROM `moisture_log` WHERE plot_id = 'E' ORDER BY date_created DESC LIMIT 1")->fetch_column()],
-  ['F', $conn->query("SELECT moisture_lvl FROM `moisture_log` WHERE plot_id = 'F' ORDER BY date_created DESC LIMIT 1")->fetch_column()],
-  ['G', $conn->query("SELECT moisture_lvl FROM `moisture_log` WHERE plot_id = 'G' ORDER BY date_created DESC LIMIT 1")->fetch_column()],
-  ['H', $conn->query("SELECT moisture_lvl FROM `moisture_log` WHERE plot_id = 'H' ORDER BY date_created DESC LIMIT 1")->fetch_column()]
+  ['A', $conn->query($get_farm_details_A)->fetch_assoc()],
+  ['B', $conn->query($get_farm_details_B)->fetch_column()],
+  ['C', $conn->query($get_latest_moisture_C)->fetch_column()],
+  ['D', $conn->query($get_latest_moisture_D)->fetch_column()],
+  ['E', $conn->query($get_latest_moisture_E)->fetch_column()],
+  ['F', $conn->query($get_latest_moisture_F)->fetch_column()],
+  ['G', $conn->query($get_latest_moisture_G)->fetch_column()],
+  ['H', $conn->query($get_latest_moisture_H)->fetch_column()]
 
 ];
 
@@ -46,7 +58,7 @@ $home_page_display = [
             <div class="square">
                 <h3>Plot A</h3>
                 <div class="inner-div"><span>Vege Type: potato</span> </div>
-                <div class="inner-div">Moist Level:  <span id="label_A"><?php echo $home_page_display[0][1]; ?></span></div>
+                <div class="inner-div">Moist Level:  <span id="label_A"><?php echo $home_page_display[0][1]["moisture_lvl"]; ?></span></div>
                 <div class="inner-div">Plant Age:</div> 
                 <div class="inner-div">MCU ID:</div>
                 <div>
@@ -213,6 +225,8 @@ $home_page_display = [
       switch(resp["C"])
       {
         case 3:
+          //create log for moisture level(including update at farm details table)
+          //aim: display the homepage usin 1 table
           store_to_log((resp["PLOT_ID"]), (resp["P"])); //args: plot id and moisture reading from field
           break;
 
