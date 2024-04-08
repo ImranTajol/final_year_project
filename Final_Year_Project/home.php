@@ -177,17 +177,31 @@
 
     socket.onmessage = function(event)
     {
+      
+      console.log(event.data);
+      resp = JSON.parse(event.data);
+      console.log(resp["C"]);
+      console.log(resp["SA"]);
+      console.log(resp["DA"]);
+      console.log(resp["PLOT_ID"]);
+      console.log(resp["P"]);
+      
       let label = "label_";
+      document.getElementById(label.concat(resp["PLOT_ID"])).innerHTML = resp["P"];
 
-        console.log(event.data);
-        resp = JSON.parse(event.data);
-        console.log(resp["C"]);
-        console.log(resp["SA"]);
-        console.log(resp["DA"]);
-        console.log(resp["PLOT_ID"]);
-        console.log(resp["P"]);
+      //add function to store to log
+      switch(resp["C"])
+      {
+        case 3:
+          store_to_log((resp["PLOT_ID"]), (resp["P"])); //args: plot id and moisture reading from field
+          break;
 
-        document.getElementById(label.concat(resp["PLOT_ID"])).innerHTML = resp["P"];
+        default:
+          console.log("Default at switch(resp[C])");
+          break;
+
+      }
+
 
 
     }
@@ -206,6 +220,42 @@
       //convert back the ascii at the receiver (esp or nano)
       var data = JSON.stringify({"C":command,"SA":MCU_ID,"DA":mcu_id, "PLOT_ID":plot_id.charCodeAt(0), "P":payload})
       socket.send(data);
+    }
+
+    function store_to_log(plot_id, moisture_lvl)
+    {
+
+      var formData = {
+        plot_id: plot_id,
+        moisture_lvl: moisture_lvl,
+      };
+
+      $.ajax({
+      url: 'ajax.php?action=store_log',
+      data: formData,
+      method: 'POST',
+      success: function(resp) {
+        resp = JSON.parse(resp);
+        if(resp.status == "success")
+        {
+          //print data for debug
+          console.log(resp.message);
+          //setTimeout(function() {location.href = "./index.php";},2000)
+        }
+        else
+        {
+          console.log("Store log failed!");
+          setTimeout(function() {location.href = location.href;},3000)
+          header("Refresh:0")
+
+        }
+      },
+      error: function(xhr, status, error) {
+        console.log("error to execute func");
+        console.log(xhr.responseText); // Log any server-side errors for debugging
+      }
+      });
+
     }
 
 
@@ -257,4 +307,6 @@
       })
       
     });
+
+
   </script>
