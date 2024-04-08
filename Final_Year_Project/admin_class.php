@@ -44,7 +44,7 @@ Class Action {
                 if ($stmt_update->execute()) {
 
                 } else {
-                    echo "Error: " . $stmt->error;
+                    echo "Error: " . $stmt_update->error;
                 }
 
                 $stmt_update->close();
@@ -104,6 +104,60 @@ Class Action {
         return json_encode(array("status" => "success", "mcu_id" => $mcu_id, "moisture_level" => $user["moisture_level"], "plot_id" => $plot_id));
 
 
+    }
+
+    function store_log()
+    {
+
+        $current_date = new DateTime();
+        $current_date->setTimezone(new DateTimeZone('Asia/Jakarta'));
+
+        include "db_connect.php";
+
+        extract($_POST);
+
+        $plot_id = $_POST['plot_id'];
+        $moisture_lvl = $_POST['moisture_lvl'];
+
+
+        $stmt_insert_log = $conn->prepare("INSERT INTO moisture_log (plot_id, moisture_lvl) VALUES (?, ?)");
+        $stmt_insert_log->bind_param('ss', $plot_id, $moisture_lvl);
+
+        // Execute the prepared statement
+        if ($stmt_insert_log->execute()) 
+        {
+            //if success do nothing
+        } 
+
+        else 
+        {
+            echo "Error: " . $stmt_insert_log->error;
+        }
+
+        $stmt_insert_log->close();
+
+        //update farm details table
+        // easier to display data in home page using single table
+        $stmt_update_farm_details = $conn->prepare("UPDATE farm_details SET moisture_lvl= ? WHERE plot_id =  ?");
+        $stmt_update_farm_details->bind_param('ds', $moisture_lvl,$plot_id);
+
+        // Execute the prepared statement
+        if ($stmt_update_farm_details->execute()) 
+        {
+            //if success do nothing
+        } 
+
+        else 
+        {
+            echo "Error: " . $stmt_update_farm_details->error;
+        }
+
+        $stmt_update_farm_details->close();
+
+        $conn->close();
+
+        return json_encode(array("status" => "success", "message" => "Store log operation successful!!"));
+        
     }
 
 }
