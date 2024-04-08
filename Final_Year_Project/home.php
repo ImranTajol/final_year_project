@@ -10,6 +10,26 @@
 
 </style>
 
+<?php
+
+include "db_connect.php";
+
+$updated_moisture_query = "SELECT moisture_lvl FROM `moisture_log` WHERE plot_id = 'A' ORDER BY date_created DESC LIMIT 1";
+
+$home_page_display = [
+  ['A', $conn->query("SELECT moisture_lvl FROM `moisture_log` WHERE plot_id = 'A' ORDER BY date_created DESC LIMIT 1")->fetch_column()],
+  ['B', $conn->query("SELECT moisture_lvl FROM `moisture_log` WHERE plot_id = 'B' ORDER BY date_created DESC LIMIT 1")->fetch_column()],
+  ['C', $conn->query("SELECT moisture_lvl FROM `moisture_log` WHERE plot_id = 'C' ORDER BY date_created DESC LIMIT 1")->fetch_column()],
+  ['D', $conn->query("SELECT moisture_lvl FROM `moisture_log` WHERE plot_id = 'D' ORDER BY date_created DESC LIMIT 1")->fetch_column()],
+  ['E', $conn->query("SELECT moisture_lvl FROM `moisture_log` WHERE plot_id = 'E' ORDER BY date_created DESC LIMIT 1")->fetch_column()],
+  ['F', $conn->query("SELECT moisture_lvl FROM `moisture_log` WHERE plot_id = 'F' ORDER BY date_created DESC LIMIT 1")->fetch_column()],
+  ['G', $conn->query("SELECT moisture_lvl FROM `moisture_log` WHERE plot_id = 'G' ORDER BY date_created DESC LIMIT 1")->fetch_column()],
+  ['H', $conn->query("SELECT moisture_lvl FROM `moisture_log` WHERE plot_id = 'H' ORDER BY date_created DESC LIMIT 1")->fetch_column()]
+
+];
+
+?>
+
 
 <h1>Agriculture Automation System</h1>
 
@@ -25,8 +45,8 @@
 
             <div class="square">
                 <h3>Plot A</h3>
-                <div class="inner-div"><span>Vege Type:</span> </div>
-                <div class="inner-div">Moist Level: <span id="label_A"></span></div>
+                <div class="inner-div"><span>Vege Type: potato</span> </div>
+                <div class="inner-div">Moist Level:  <span id="label_A"><?php echo $home_page_display[0][1]; ?></span></div>
                 <div class="inner-div">Plant Age:</div> 
                 <div class="inner-div">MCU ID:</div>
                 <div>
@@ -45,7 +65,7 @@
             <div class="square">
               <h3>Plot B</h3>
                 <div class="inner-div">Vege Type:</div>
-                  <div class="inner-div">Moist Level: <span id="label_B"></span></div>
+                  <div class="inner-div">Moist Level:  <span id="label_B"><?php echo $home_page_display[1][1]; ?></span></div>
                   <div class="inner-div">Plant Age:</div> 
                   <div class="inner-div">MCU ID:</div>
                   <div>
@@ -271,40 +291,40 @@
     };
 
     
-  $.ajax({
-      url: 'ajax.php?action=water_plot',
-      data: formData,
-      method: 'POST',
-      success: function(resp) {
-        console.log(resp);
-        resp = JSON.parse(resp);
-        if(resp.status == "success")
-        {
-          //print data for debug
-          console.log(resp.mcu_id);
-          console.log(resp.plot_id.charCodeAt(0));
-          console.log(resp.moisture_level);
-          
-          sendToWebSocket(resp.mcu_id, resp.plot_id, resp.moisture_level);
+    $.ajax({
+        url: 'ajax.php?action=water_plot',
+        data: formData,
+        method: 'POST',
+        success: function(resp) {
+          console.log(resp);
+          resp = JSON.parse(resp);
+          if(resp.status == "success")
+          {
+            //print data for debug
+            console.log(resp.mcu_id);
+            console.log(resp.plot_id.charCodeAt(0));
+            console.log(resp.moisture_level);
+            
+            sendToWebSocket(resp.mcu_id, resp.plot_id, resp.moisture_level);
 
-          //setTimeout(function() {location.href = "./index.php";},2000)
-          
+            //setTimeout(function() {location.href = "./index.php";},2000)
+            
+          }
+          else
+          {
+            console.log("Data entry failed!");
+            setTimeout(function() {location.href = location.href;},3000)
+            header("Refresh:0")
+
+          }
+        },
+        error: function(xhr, status, error) {
+          console.log("error to execute func");
+          console.log(xhr.responseText); // Log any server-side errors for debugging
         }
-        else
-        {
-          console.log("Data entry failed!");
-          setTimeout(function() {location.href = location.href;},3000)
-          header("Refresh:0")
+        });
 
-        }
-      },
-      error: function(xhr, status, error) {
-        console.log("error to execute func");
-        console.log(xhr.responseText); // Log any server-side errors for debugging
-      }
-      });
-
-      })
+        })
       
     });
 
