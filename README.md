@@ -20,6 +20,15 @@ Connectivity:
   * MCU id
   * Plant age
  
+  
+ **System function command:**
+      * Command 1: water all plots
+      * Command 2: water specific plot
+      * Command 3: station request data from field
+      * Command 4: sensors detect low moisture level
+      * Command 5: update field microcontroller eeprom data
+      
+
 **Station Section (ESP32):**
 Establish connection with WEB UI using websocket (requires Wi-Fi connection)
 All Field MCU send data to ESP32
