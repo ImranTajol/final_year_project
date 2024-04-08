@@ -12,6 +12,9 @@
 
 <?php
 
+$current_date = new DateTime();
+$current_date->setTimezone(new DateTimeZone('Asia/Jakarta'));
+
 include "db_connect.php";
 
 $get_latest_moisture_A = "SELECT moisture_lvl FROM `moisture_log` WHERE plot_id = 'A' ORDER BY date_created DESC LIMIT 1";
@@ -30,7 +33,7 @@ $get_farm_details_B = "SELECT * FROM `farm_details` WHERE plot_id = 'B'";
 
 $home_page_display = [
   ['A', $conn->query($get_farm_details_A)->fetch_assoc()],
-  ['B', $conn->query($get_farm_details_B)->fetch_column()],
+  ['B', $conn->query($get_farm_details_B)->fetch_assoc()],
   ['C', $conn->query($get_latest_moisture_C)->fetch_column()],
   ['D', $conn->query($get_latest_moisture_D)->fetch_column()],
   ['E', $conn->query($get_latest_moisture_E)->fetch_column()],
@@ -53,14 +56,21 @@ $home_page_display = [
 
         <div class="row">
 
-        <?php $vege = "Potato"; ?>
-
             <div class="square">
                 <h3>Plot A</h3>
-                <div class="inner-div"><span>Vege Type: potato</span> </div>
+                <div class="inner-div">Vege Type: <span><?php echo $home_page_display[0][1]["plant_type"]; ?></span> </div>
                 <div class="inner-div">Moist Level:  <span id="label_A"><?php echo $home_page_display[0][1]["moisture_lvl"]; ?></span></div>
-                <div class="inner-div">Plant Age:</div> 
-                <div class="inner-div">MCU ID:</div>
+                <div class="inner-div">Plant Age: 
+                  <span>
+                    <?php $date_plant = new DateTime($home_page_display[0][1]["date_plant"], new DateTimeZone('Asia/Jakarta'));
+                  
+                    $diff = $date_plant->diff($current_date)->format("%a");
+
+                    echo $diff." days";
+                    ?>
+                  </span>
+                </div> 
+                <div class="inner-div">MCU ID: <span><?php echo $home_page_display[0][1]["mcu_id"]; ?></div>
                 <div>
 
                 <!-- 1. button when click redirect to index.php and get the page
@@ -76,17 +86,28 @@ $home_page_display = [
 
             <div class="square">
               <h3>Plot B</h3>
-                <div class="inner-div">Vege Type:</div>
-                  <div class="inner-div">Moist Level:  <span id="label_B"><?php echo $home_page_display[1][1]; ?></span></div>
-                  <div class="inner-div">Plant Age:</div> 
-                  <div class="inner-div">MCU ID:</div>
-                  <div>
+              <div class="inner-div">Vege Type: <span><?php echo $home_page_display[1][1]["plant_type"]; ?></span> </div>
+                  <div class="inner-div">Moist Level:  <span id="label_B"><?php echo $home_page_display[1][1]["moisture_lvl"]; ?></span></div>
+                  <div class="inner-div">Plant Age: 
+                  <span>
+                    <?php $date_plant = new DateTime($home_page_display[1][1]["date_plant"], new DateTimeZone('Asia/Jakarta'));
+                  
+                    $diff = $date_plant->diff($current_date)->format("%a");
 
-                    <button name="water_plot" value="B" class="btn btn-primary">Water plot (test)</button>
-                    <a href="./index.php?page=water_manual&button_id=B" class="btn btn-primary">Water</a>
-                    <a href="./index.php?page=edit_data&button_id=B" class="btn btn-success">Edit</a>
+                    echo $diff." days";
+                    ?>
+                  </span>
+                </div> 
+                <div class="inner-div">MCU ID: <span><?php echo $home_page_display[1][1]["mcu_id"]; ?></div>
+
+                <div>
+
+                  <button name="water_plot" value="B" class="btn btn-primary">Water plot (test)</button>
+                  <a href="./index.php?page=water_manual&button_id=B" class="btn btn-primary">Water</a>
+                  <a href="./index.php?page=edit_data&button_id=B" class="btn btn-success">Edit</a>
 
                 </div>
+                
             </div>
 
             <div class="square">
