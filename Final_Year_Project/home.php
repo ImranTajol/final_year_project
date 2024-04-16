@@ -17,24 +17,19 @@ $current_date->setTimezone(new DateTimeZone('Asia/Jakarta'));
 
 include "db_connect.php";
 
-$get_latest_moisture_A = "SELECT moisture_lvl FROM `moisture_log` WHERE plot_id = 'A' ORDER BY date_created DESC LIMIT 1";
-$get_latest_moisture_B = "SELECT moisture_lvl FROM `moisture_log` WHERE plot_id = 'B' ORDER BY date_created DESC LIMIT 1";
-$get_latest_moisture_C = "SELECT moisture_lvl FROM `moisture_log` WHERE plot_id = 'C' ORDER BY date_created DESC LIMIT 1";
-$get_latest_moisture_D = "SELECT moisture_lvl FROM `moisture_log` WHERE plot_id = 'D' ORDER BY date_created DESC LIMIT 1";
-$get_latest_moisture_E = "SELECT moisture_lvl FROM `moisture_log` WHERE plot_id = 'E' ORDER BY date_created DESC LIMIT 1";
-$get_latest_moisture_F = "SELECT moisture_lvl FROM `moisture_log` WHERE plot_id = 'F' ORDER BY date_created DESC LIMIT 1";
-$get_latest_moisture_G = "SELECT moisture_lvl FROM `moisture_log` WHERE plot_id = 'G' ORDER BY date_created DESC LIMIT 1";
-$get_latest_moisture_H = "SELECT moisture_lvl FROM `moisture_log` WHERE plot_id = 'H' ORDER BY date_created DESC LIMIT 1";
-
 
 //latest query (9/4/2024)
-$get_farm_details_A = "SELECT * FROM `farm_details` WHERE plot_id = 'A'";
-$get_farm_details_B = "SELECT * FROM `farm_details` WHERE plot_id = 'B'";
+//to display at home page.. getting the last created plot info (latest crop planted)
+$get_farm_details_A = "SELECT * FROM `farm_details` WHERE plot_id = 'A' ORDER BY date_created DESC LIMIT 1";
+$get_farm_details_B = "SELECT * FROM `farm_details` WHERE plot_id = 'B' ORDER BY date_created DESC LIMIT 1";
+$get_farm_details_C = "SELECT * FROM `farm_details` WHERE plot_id = 'C' ORDER BY date_created DESC LIMIT 1";
 
+
+//creating list
 $home_page_display = [
   ['A', $conn->query($get_farm_details_A)->fetch_assoc()],
   ['B', $conn->query($get_farm_details_B)->fetch_assoc()],
-  ['C', $conn->query($get_latest_moisture_C)->fetch_column()],
+  ['C', $conn->query($get_farm_details_C)->fetch_assoc()],
   ['D', $conn->query($get_latest_moisture_D)->fetch_column()],
   ['E', $conn->query($get_latest_moisture_E)->fetch_column()],
   ['F', $conn->query($get_latest_moisture_F)->fetch_column()],
@@ -98,7 +93,7 @@ $home_page_display = [
                     ?>
                   </span>
                 </div> 
-                <div class="inner-div">MCU ID: <span><?php echo $home_page_display[1][1]["mcu_id"]; ?></div>
+                <div class="inner-div">MCU ID: <span><?php echo $home_page_display[1][1]["mcu_id"]; ?> </span> </div>
 
                 <div>
 
@@ -112,14 +107,24 @@ $home_page_display = [
 
             <div class="square">
               <h3>Plot C</h3>
-                  <div class="inner-div">Vege Type:</div>
-                  <div class="inner-div">Moist Level:</div>
-                  <div class="inner-div">Plant Age:</div> 
-                  <div class="inner-div">MCU ID:</div>
+                  <div class="inner-div">Vege Type: <span><?php echo $home_page_display[2][1]["plant_type"]; ?></span></div>
+                  <div class="inner-div">Moist Level: <span id="label_B"><?php echo $home_page_display[2][1]["moisture_lvl"]; ?></span> </div>
+                  <div class="inner-div">Plant Age: 
+                    <span>
+                      <?php $date_plant = new DateTime($home_page_display[2][1]["date_plant"], new DateTimeZone('Asia/Jakarta'));
+                    
+                      $diff = $date_plant->diff($current_date)->format("%a");
+
+                      echo $diff." days";
+                      ?>
+                    </span>
+                  </div> 
+                  <div class="inner-div">MCU ID: <span><?php echo $home_page_display[2][1]["mcu_id"]; ?> </span></div>
                   <div>
 
+                  <button name="water_plot" value="B" class="btn btn-primary">Water plot (test)</button>
                   <a href="./index.php?page=water_manual&button_id=C" class="btn btn-primary">Water</a>
-                    <a href="./index.php?page=edit_data&button_id=C" class="btn btn-success">Edit</a>
+                  <a href="./index.php?page=edit_data&button_id=C" class="btn btn-success">Edit</a>
 
                   </div>
 
@@ -226,7 +231,7 @@ $home_page_display = [
     //placeholder
     var MCU_ID = 'smcu1'; //station MCU 1
 
-    var socket = new WebSocket('ws://192.168.1.102:81');
+    var socket = new WebSocket('ws://192.168.1.9:81');
 
     socket.onmessage = function(event)
     {
