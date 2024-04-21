@@ -76,7 +76,8 @@ void parseData() {      // split the data into its parts
     strcpy(DA, strtokIndx); // copy it to DA
 
     strtokIndx = strtok(NULL,",");      // get the first part - the string+
-    payloadFromESP = atoi(strtokIndx);
+    strcpy(payloadFromESP, strtokIndx);
+//    payloadFromESP = atoi(strtokIndx);
     
 }
 
@@ -107,10 +108,10 @@ int check_destination_address()
   }
 }
 
-uint16_t read_soil_moisture(uint8_t* payloadFromESP)
+uint16_t read_soil_moisture(char* payloadFromESP)
 {
   //check payload with address
-  if(*payloadFromESP == PLOT_1)  //compare char
+  if(strcmp(payloadFromESP,PLOT_1) == 0)  //compare char
   {
     //read plot A moisture
     delay(300);
@@ -128,7 +129,7 @@ uint16_t read_soil_moisture(uint8_t* payloadFromESP)
     return adc0+adc1+adc2+adc3;
     delay(300);
   }
-  if(*payloadFromESP == PLOT_2)
+  if(strcmp(payloadFromESP,PLOT_2) == 0)
   {
     //read plot B moisture
     Serial.println("Read Plot B");
@@ -148,13 +149,13 @@ uint16_t read_soil_moisture(uint8_t* payloadFromESP)
   
 }//end read soil moisture func
 
-void formatData(char* dataToTx, uint8_t* C, char* SA, char* DA, uint16_t* payload)
+void formatData(char* dataToTx, uint8_t* C, char* SA, char* DA, char* payloadFromESP, uint16_t* payload)
 {
   //combine the string and put it into dataToTx char array using the pointer
   //need *C in the sprintf because %c require char.. C is the address. *C to dereference it
   //SA and DA no need *... because it will dereference the first element in the array
   //ex: if char[] SA="SA".....*SA -> 'S' instead of "SA"
-  sprintf(dataToTx,"<%u,%s,%s,%u>", *C, SA, DA, *payload);
+  sprintf(dataToTx,"<%u,%s,%s,%s,%u>", *C, SA, DA, payloadFromESP, *payload);
   
 }
 
