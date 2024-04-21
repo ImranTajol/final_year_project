@@ -5,7 +5,28 @@
 #include <ArduinoJson.h>
 #include <ArduinoWebsockets.h>
 #include <SoftwareSerial.h>
-//#include "station_function.h"
+#include <map>
+#include <vector>
+
+
+#define PUMP1 22        
+#define PUMP2 23
+#define RELAY1 21 //gpio 13 of expansion board is faulty
+#define RELAY2 12
+#define RELAY3 14
+#define RELAY4 27
+#define RELAY5 26
+#define RELAY6 25
+#define RELAY7 33
+#define RELAY8 32
+#define webserver_status 15
+
+
+//mapping of pins to plot id
+std::map<std::string, int> relay_pins = {{"A",RELAY1},{"B",RELAY2},{"C",RELAY3},{"D",RELAY4},{"E",RELAY5},{"F",RELAY6},{"G",RELAY7},{"H",RELAY8}};
+
+//mapping of water pump to plot id
+std::map<std::string, int> pump_pins = {{"A",PUMP1},{"B",PUMP1},{"C",PUMP1},{"D",PUMP1},{"E",PUMP2},{"F",PUMP2},{"G",PUMP2},{"H",PUMP2}};
 
 
 //------------------------
@@ -14,6 +35,23 @@
 //3.3V --> VCC
 //Gnd --> Gnd
 //------------------------
+
+//---------------------------------
+//Pin association to relay and pump
+//Pump 1 ------ GPIO 22
+//Pump 2 ------ GPIO 23
+//Relay 1 ------ GPIO 13
+//Relay 2 ------ GPIO 12
+//Relay 3 ------ GPIO 14
+//Relay 4 ------ GPIO 27
+//Relay 5 ------ GPIO 26
+//Relay 6 ------ GPIO 25
+//Relay 7 ------ GPIO 33
+//Relay 8 ------ GPIO 32
+
+//---------------------------------
+
+
 
 //FUNCTION DEFINITION
 void connect_Wifi();
@@ -27,6 +65,7 @@ void connect_webSocket(const char* );
     // Command 3: station request data from field
     // command 4: sensors detect low moisture level
     // command 5: update field microcontroller eeprom data
+//    <3, smcu1, fmcu1, 65>
 //=============================================================================
 
 #define RX 5
@@ -53,13 +92,20 @@ byte incomingByte;
 String readBuffer = "";
 String receivedData = "";
 
+const unsigned long request_moisture_interval = 20000; //in milliseconds
+const unsigned long send_plots_command_interval = 2000;
+unsigned long previousTime_req_moisture = 0;
+unsigned long previousTime_plots_command = 0;
+int iterate_command = 0;
+bool req_moisture_data = true;
+
 
 WebsocketsClient socket;
-const char* websocketServer = "ws://192.168.1.102:81/";
+const char* websocketServer = "ws://192.168.1.9:81/";
 boolean connected = false;
 
-const char* ssid = "TKRIB_2.4G";
-const char* password = "kamsiah062011";
+const char* ssid = "UltramanCosmos";
+const char* password = "Tuhau123";
 
 
 ////variable for data from HC12 (using global variable)
@@ -73,6 +119,7 @@ struct parsedData{
   int command;
   char source_addr[ADDR_LENGTH];
   char destination_addr[ADDR_LENGTH];
+  char plot_id[2];
   int payload;
 };
 
@@ -84,20 +131,32 @@ parsedData myData; //instantiate struct
 
 //=============================================================SETUP AND LOOP==========================================================================
 
+
 void setup() {
   Serial.begin(9600); // setup serial monitor
   HC12.begin(BAUD_RATE, EspSoftwareSerial::SWSERIAL_8N1, RX, TX);//setup HC12 UART
 
-  
-  
   connect_Wifi(); // function has while loop to ensure connection is established
   connect_webSocket(websocketServer);
   socket.onMessage(handleMessage);
   socket.onEvent(handleEvent);
-  
+
+  pinMode(PUMP1,OUTPUT);
+  pinMode(PUMP2,OUTPUT);
+  pinMode(RELAY1,OUTPUT);
+  pinMode(RELAY2,OUTPUT);
+  pinMode(RELAY3,OUTPUT);
+  pinMode(RELAY4,OUTPUT);
+  pinMode(RELAY5,OUTPUT);
+  pinMode(RELAY6,OUTPUT);
+  pinMode(RELAY7,OUTPUT);
+  pinMode(RELAY8,OUTPUT);
+  pinMode(webserver_status,OUTPUT);
+
 }
 
 void loop() {
+  delay(10);
   //connected bool is set when websocket successful connection
   if(!connected)
   {
@@ -108,14 +167,39 @@ void loop() {
 
   socket.poll(); //transfer control to appropriate function to handle event message
 
+
+  unsigned long currentTime_req_moisture = millis(); 
+  
+  if ((currentTime_req_moisture - previousTime_req_moisture >= request_moisture_interval) && req_moisture_data == false) 
+  {
+    Serial.println("");
+    Serial.println("-----------------");
+    Serial.println("Next req moisture");
+    req_moisture_data = true;
+    previousTime_req_moisture = currentTime_req_moisture;
+  }
+  
+  if ((currentTime_req_moisture - previousTime_plots_command >= send_plots_command_interval) && req_moisture_data == true) 
+  {
+    reqData_HC12(&iterate_command);
+    previousTime_plots_command = currentTime_req_moisture;
+  }
+
+  
+  
+
   recvWithStartEndMarkers(); //handle if data receive through UART
-  if (newData == true) {
+  if (newData == true && doneExecuteOperation == false) {
     
         // copy is necessary to protect the original data
         // because strtok() used in parseDataFromHC12() replaces the commas with \0
         strcpy(tempChars, receivedChars);  
         parseDataFromHC12(&myData);
         showParsedData(myData); //display parsed data
+
+        mcu_operation(myData); //pass struct to function
+        doneExecuteOperation = true;
+    
         newData = false;
     }
 
@@ -124,14 +208,15 @@ void loop() {
   while (Serial.available()) {
     HC12.write(Serial.read());
   }
-  delay(200);
+//  delay(200);
 
   //check if there is new that is not executed using function..check destination is correct..ignore if wrong
-  if(newData == true && doneExecuteOperation == false && myData.destination_addr == MCU_ID)
-  {
-    mcu_operation(myData); //pass struct to function
-    doneExecuteOperation = true;
-  }
+//  if(newData == false && doneExecuteOperation == false && myData.destination_addr == MCU_ID)
+//  {
+//    Serial.println("executing this part");
+//    mcu_operation(myData); //pass struct to function
+//    doneExecuteOperation = true;
+//  }
 
 }//end void loop
 
@@ -145,11 +230,14 @@ void loop() {
 
 void handleMessage(WebsocketsMessage message)
 {
+  Serial.println("");
   Serial.println(message.data());
+  Serial.println("");
   if(message.data()!= "Welcome to the server.")
   {
     parseJsonData(message.data());
     display_struct(myData);
+    mcu_operation(myData); //pass struct to function
   }
   
 }
@@ -171,7 +259,7 @@ void connect_Wifi()
   Serial.print("Connecting to ");
   Serial.println(ssid);
   WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
+  while (WiFi.status() != WL_CONNECTED) { 
     delay(500);
     Serial.print(".");
   }
@@ -188,9 +276,12 @@ void connect_webSocket(const char* websocketServer)
   if(connected)
   {
     Serial.println("Websocket server Connected");
+    delay(100);
+    digitalWrite(webserver_status, LOW);
   }
   else
   {
+    digitalWrite(webserver_status, HIGH);
     Serial.println("Connection failed.");
   }
   
