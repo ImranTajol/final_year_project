@@ -90,6 +90,8 @@ $button_id = $_GET['button_id'];
 
 <script>
 
+  
+
   $('#plant_data').submit(function(e) {
     e.preventDefault();
 
@@ -117,7 +119,7 @@ $button_id = $_GET['button_id'];
         {
           console.log("Data entry failed!");
           setTimeout(function() {location.href = location.href;},3000)
-          header("REfresh:0")
+          header("Refresh:0")
 
         }
       },

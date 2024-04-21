@@ -28,13 +28,19 @@ class MyWebSocket implements MessageComponentInterface{
 
     public function onMessage(ConnectionInterface $from, $msg)
     {
-        echo 'Received at server: '.$msg. ' from Client: '.$from->resourceId;
+        echo "Client: {$from->resourceId}: {$msg}\n";
+        // echo 'Received at server: '.$msg. ' from Client: '.$from->resourceId.'\n';
 
         //// This line below send the message to all connected clients (broadcast)
 
         foreach($this->connectedClients as $client){
-                echo 'Received at server: '.$msg;
+            
+            //not sending to own self
+            if(!($client->resourceId == $from->resourceId))
+            {
+                echo "Client {$from->resourceId} To All: : {$msg} \n";
                 $client->send($msg);
+            }
 
         }
 

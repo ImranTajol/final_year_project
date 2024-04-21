@@ -10,6 +10,36 @@
 
 </style>
 
+<?php
+
+$current_date = new DateTime();
+$current_date->setTimezone(new DateTimeZone('Asia/Jakarta'));
+
+include "db_connect.php";
+
+
+//latest query (9/4/2024)
+//to display at home page.. getting the last created plot info (latest crop planted)
+$get_farm_details_A = "SELECT * FROM `farm_details` WHERE plot_id = 'A' ORDER BY date_created DESC LIMIT 1";
+$get_farm_details_B = "SELECT * FROM `farm_details` WHERE plot_id = 'B' ORDER BY date_created DESC LIMIT 1";
+$get_farm_details_C = "SELECT * FROM `farm_details` WHERE plot_id = 'C' ORDER BY date_created DESC LIMIT 1";
+
+
+//creating list
+$home_page_display = [
+  ['A', $conn->query($get_farm_details_A)->fetch_assoc()],
+  ['B', $conn->query($get_farm_details_B)->fetch_assoc()],
+  ['C', $conn->query($get_farm_details_C)->fetch_assoc()],
+  ['D', $conn->query($get_latest_moisture_D)->fetch_column()],
+  ['E', $conn->query($get_latest_moisture_E)->fetch_column()],
+  ['F', $conn->query($get_latest_moisture_F)->fetch_column()],
+  ['G', $conn->query($get_latest_moisture_G)->fetch_column()],
+  ['H', $conn->query($get_latest_moisture_H)->fetch_column()]
+
+];
+
+?>
+
 
 <h1>Agriculture Automation System</h1>
 
@@ -21,67 +51,87 @@
 
         <div class="row">
 
-        <?php $vege = "Potato"; ?>
-
             <div class="square">
                 <h3>Plot A</h3>
-                <div class="inner-div">Vege Type: <?php echo $vege?> </div>
-                <div class="inner-div">Moist Level:</div>
-                <div class="inner-div">Plant Age:</div> 
-                <div class="inner-div">MCU ID:</div>
+                <div class="inner-div">Vege Type: <span><?php echo $home_page_display[0][1]["plant_type"]; ?></span> </div>
+                <div class="inner-div">Moist Level:  <span id="label_A"><?php echo $home_page_display[0][1]["moisture_lvl"]; ?></span></div>
+                <div class="inner-div">Plant Age: 
+                  <span>
+                    <?php $date_plant = new DateTime($home_page_display[0][1]["date_plant"], new DateTimeZone('Asia/Jakarta'));
+                  
+                    $diff = $date_plant->diff($current_date)->format("%a");
+
+                    echo $diff." days";
+                    ?>
+                  </span>
+                </div> 
+                <div class="inner-div">MCU ID: <span><?php echo $home_page_display[0][1]["mcu_id"]; ?></div>
                 <div>
 
                 <!-- 1. button when click redirect to index.php and get the page
                       2. at the page, GET the id (respective to the button) -->
+                    <button name="water_plot" value="A" class="btn btn-primary">Water plot (test)</button>
                     <a href="./index.php?page=water_manual&button_id=A" class="btn btn-primary">Water</a>
                     <a href="./index.php?page=edit_data&button_id=A" class="btn btn-success">Edit</a>
                     <!-- <a href="edit_data.php" class="btn btn-success">Edit</a> -->
 
-                    <!-- POPUP TESTING
-                    <button type="submit" class="btn btn-primary" onclick="openpopup()">Water Test</button>
-
-                    <div class="popup" id="popup">
-                      <div id="water_manual_div">Test</div>
-                      <h2>Thank You</h2>
-                      <p>The form</p>
-
-                      <button type="button" onclick="closepopup()">OKAY</button>
-                    </div> -->
-                    
 
                 </div>
             </div>
 
-            <div class="square" onclick="redirect('B')">
+            <div class="square">
               <h3>Plot B</h3>
-                <div class="inner-div">Vege Type:</div>
-                  <div class="inner-div">Moist Level:</div>
-                  <div class="inner-div">Plant Age:</div> 
-                  <div class="inner-div">MCU ID:</div>
-                  <div>
+              <div class="inner-div">Vege Type: <span><?php echo $home_page_display[1][1]["plant_type"]; ?></span> </div>
+                  <div class="inner-div">Moist Level:  <span id="label_B"><?php echo $home_page_display[1][1]["moisture_lvl"]; ?></span></div>
+                  <div class="inner-div">Plant Age: 
+                  <span>
+                    <?php $date_plant = new DateTime($home_page_display[1][1]["date_plant"], new DateTimeZone('Asia/Jakarta'));
+                  
+                    $diff = $date_plant->diff($current_date)->format("%a");
 
-                    <a href="./index.php?page=water_manual&button_id=B" class="btn btn-primary">Water</a>
-                    <a href="./index.php?page=edit_data&button_id=B" class="btn btn-success">Edit</a>
+                    echo $diff." days";
+                    ?>
+                  </span>
+                </div> 
+                <div class="inner-div">MCU ID: <span><?php echo $home_page_display[1][1]["mcu_id"]; ?> </span> </div>
+
+                <div>
+
+                  <button name="water_plot" value="B" class="btn btn-primary">Water plot (test)</button>
+                  <a href="./index.php?page=water_manual&button_id=B" class="btn btn-primary">Water</a>
+                  <a href="./index.php?page=edit_data&button_id=B" class="btn btn-success">Edit</a>
 
                 </div>
+                
             </div>
 
-            <div class="square" onclick="redirect('C')">
+            <div class="square">
               <h3>Plot C</h3>
-                  <div class="inner-div">Vege Type:</div>
-                  <div class="inner-div">Moist Level:</div>
-                  <div class="inner-div">Plant Age:</div> 
-                  <div class="inner-div">MCU ID:</div>
+                  <div class="inner-div">Vege Type: <span><?php echo $home_page_display[2][1]["plant_type"]; ?></span></div>
+                  <div class="inner-div">Moist Level: <span id="label_B"><?php echo $home_page_display[2][1]["moisture_lvl"]; ?></span> </div>
+                  <div class="inner-div">Plant Age: 
+                    <span>
+                      <?php $date_plant = new DateTime($home_page_display[2][1]["date_plant"], new DateTimeZone('Asia/Jakarta'));
+                    
+                      $diff = $date_plant->diff($current_date)->format("%a");
+
+                      echo $diff." days";
+                      ?>
+                    </span>
+                  </div> 
+                  <div class="inner-div">MCU ID: <span><?php echo $home_page_display[2][1]["mcu_id"]; ?> </span></div>
                   <div>
 
+                  <button name="water_plot" value="B" class="btn btn-primary">Water plot (test)</button>
                   <a href="./index.php?page=water_manual&button_id=C" class="btn btn-primary">Water</a>
-                    <a href="./index.php?page=edit_data&button_id=C" class="btn btn-success">Edit</a>
+                  <a href="./index.php?page=edit_data&button_id=C" class="btn btn-success">Edit</a>
 
                   </div>
+
             </div>
 
 
-            <div class="square" onclick="redirect('D')">
+            <div class="square">
               <h3>Plot D</h3>
                 <div class="inner-div">Vege Type:</div>
                   <div class="inner-div">Moist Level:</div>
@@ -100,36 +150,43 @@
 
         <div class="row">
 
-            <div class="square" onclick="redirect('E')">
-                <h3>Plot E</h3>
-                <div class="inner-div">Vege Type:</div>
-                <div class="inner-div">Moist Level:</div>
-                <div class="inner-div">Plant Age:</div> 
-                <div class="inner-div">MCU ID:</div>
-                <div>
-                <a href="./index.php?page=water_manual&button_id=E" class="btn btn-primary">Water</a>
-                    <a href="./index.php?page=edit_data&button_id=E" class="btn btn-success">Edit</a>
-                </div>
-
-            </div>
-
-            <div class="square" onclick="redirect('F')">
-              
-              <h3>Plot F</h3>
-                <div class="inner-div">Vege Type:</div>
-                  <div class="inner-div">Moist Level:</div>
-                  <div class="inner-div">Plant Age:</div> 
-                  <div class="inner-div">MCU ID:</div>
-                  <div>
-
-                  <a href="./index.php?page=water_manual&button_id=F" class="btn btn-primary">Water</a>
-                    <a href="./index.php?page=edit_data&button_id=F" class="btn btn-success">Edit</a>
-
-                </div>
-            </div>
-
-            <div class="square" onclick="redirect('G')">
+        <div class="square">
           
+          
+          <h3>Plot E</h3>
+          <div class="inner-div">Vege Type:</div>
+          <div class="inner-div">Moist Level:</div>
+          <div class="inner-div">Plant Age:</div> 
+          <div class="inner-div">MCU ID:</div>
+          <div>
+            <a href="./index.php?page=water_manual&button_id=E" class="btn btn-primary">Water</a>
+            <a href="./index.php?page=edit_data&button_id=E" class="btn btn-success">Edit</a>
+          </div>
+          
+        </div>
+
+
+        <div class="square">
+
+          
+          <h3>Plot F</h3>
+          <div class="inner-div">Vege Type:</div>
+          <div class="inner-div">Moist Level:</div>
+          <div class="inner-div">Plant Age:</div> 
+          <div class="inner-div">MCU ID:</div>
+          <div>
+            
+            <a href="./index.php?page=water_manual&button_id=F" class="btn btn-primary">Water</a>
+            <a href="./index.php?page=edit_data&button_id=F" class="btn btn-success">Edit</a>
+            
+          </div>
+          
+        </div>
+
+
+        <div class="square">
+
+        
               <h3>Plot G</h3>
                 <div class="inner-div">Vege Type:</div>
                   <div class="inner-div">Moist Level:</div>
@@ -141,10 +198,11 @@
                     <a href="./index.php?page=edit_data&button_id=G" class="btn btn-success">Edit</a>
 
                   </div>
-            </div>
+
+        </div>
 
 
-            <div class="square" onclick="redirect('H')">
+        <div class="square">
           
               <h3>Plot H</h3>
                 <div class="inner-div">Vege Type:</div>
@@ -157,55 +215,158 @@
                     <a href="./index.php?page=edit_data&button_id=H" class="btn btn-success">Edit</a>
 
                   </div>
-            </div>
 
         </div>
+
+      </div>
         
         
     </div>
 
 
-    <!-- <button class="open-button" onclick="openForm()">Open Form</button> -->
-
-<!-- <div class="form-popup" id="myForm">
-  <form action="/action_page.php" class="form-container">
-    <h1>Login</h1>
-
-    <label for="email"><b>Email</b></label>
-    <input type="text" placeholder="Enter Email" name="email" required>
-
-    <label for="psw"><b>Password</b></label>
-    <input type="password" placeholder="Enter Password" name="psw" required>
-
-    <button type="submit" class="btn">Login</button>
-    <button type="button" class="btn cancel" onclick="closeForm()">Close</button>
-  </form>
-</div> -->
+    
 
   <script>
+
+    //placeholder
+    var MCU_ID = 'smcu1'; //station MCU 1
+
+    var socket = new WebSocket('ws://192.168.1.9:81');
+
+    socket.onmessage = function(event)
+    {
+      
+      console.log(event.data);
+      resp = JSON.parse(event.data);
+      console.log(resp["C"]);
+      console.log(resp["SA"]);
+      console.log(resp["DA"]);
+      console.log(resp["PLOT_ID"]);
+      console.log(resp["P"]);
+      
+      let label = "label_";
+      document.getElementById(label.concat(resp["PLOT_ID"])).innerHTML = resp["P"];
+
+      //add function to store to log
+      switch(resp["C"])
+      {
+        case 3:
+          //create log for moisture level(including update at farm details table)
+          //aim: display the homepage usin 1 table
+          store_to_log((resp["PLOT_ID"]), (resp["P"])); //args: plot id and moisture reading from field
+          break;
+
+        default:
+          console.log("Default at switch(resp[C])");
+          break;
+
+      }
+
+
+
+    }
+
+
     function redirect(letter) {
       // Redirect to another page based on the clicked letter
       window.location.href = 'redirect.php?letter=' + letter;
     }
 
-    function openForm() {
-      document.getElementById("myForm").style.display = "block";
-    }
-
-    function closeForm() {
-      document.getElementById("myForm").style.display = "none";
-    }
-
-
-    let popup =document.getElementById("popup");
-
-    function openpopup()
+    function sendToWebSocket(mcu_id, plot_id, payload)
     {
-        popup.classList.add("open-popup");
+      var command = 2;
+
+      //plot id send to websocket in term of ascii...ex: plot A -> 65
+      //convert back the ascii at the receiver (esp or nano)
+      var data = JSON.stringify({"C":command,"SA":MCU_ID,"DA":mcu_id, "PLOT_ID":plot_id.charCodeAt(0), "P":payload})
+      socket.send(data);
     }
 
-    function closepopup()
+    function store_to_log(plot_id, moisture_lvl)
     {
-        popup.classList.remove("open-popup");
+
+      var formData = {
+        plot_id: plot_id,
+        moisture_lvl: moisture_lvl,
+      };
+
+      $.ajax({
+      url: 'ajax.php?action=store_log',
+      data: formData,
+      method: 'POST',
+      success: function(resp) {
+        resp = JSON.parse(resp);
+        if(resp.status == "success")
+        {
+          //print data for debug
+          console.log(resp.message);
+          //setTimeout(function() {location.href = "./index.php";},2000)
+        }
+        else
+        {
+          console.log("Store log failed!");
+          setTimeout(function() {location.href = location.href;},3000)
+          header("Refresh:0")
+
+        }
+      },
+      error: function(xhr, status, error) {
+        console.log("error to execute func");
+        console.log(xhr.responseText); // Log any server-side errors for debugging
+      }
+      });
+
     }
+
+
+
+    $(document).ready(function() {
+    
+    $('button[name="water_plot"]').click(function(e) {
+    e.preventDefault();
+
+
+    var formData = {
+      plot_id: $(this).val(),
+    };
+
+    
+    $.ajax({
+        url: 'ajax.php?action=water_plot',
+        data: formData,
+        method: 'POST',
+        success: function(resp) {
+          console.log(resp);
+          resp = JSON.parse(resp);
+          if(resp.status == "success")
+          {
+            //print data for debug
+            console.log(resp.mcu_id);
+            console.log(resp.plot_id.charCodeAt(0));
+            console.log(resp.moisture_level);
+            
+            sendToWebSocket(resp.mcu_id, resp.plot_id, resp.moisture_level);
+
+            //setTimeout(function() {location.href = "./index.php";},2000)
+            
+          }
+          else
+          {
+            console.log("Data entry failed!");
+            setTimeout(function() {location.href = location.href;},3000)
+            header("Refresh:0")
+
+          }
+        },
+        error: function(xhr, status, error) {
+          console.log("error to execute func");
+          console.log(xhr.responseText); // Log any server-side errors for debugging
+        }
+        });
+
+        })
+      
+    });
+
+
   </script>

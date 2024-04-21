@@ -5,7 +5,7 @@
     var socket = new WebSocket('ws://192.168.1.102:81');
 
     //placeholder
-    var MCU_ID = 'main'
+    var MCU_ID = 'smcu1';
 
     
     socket.onmessage = function(event)
@@ -14,11 +14,13 @@
     }
     
 //=============================================================================
+
     // Command 1: water all plots
     // command 2: water specific plot
     // Command 3: station request data from field
     // command 4: sensors detect low moisture level
     // command 5: update field microcontroller eeprom data
+
 //=============================================================================
 
 
