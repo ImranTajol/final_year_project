@@ -20,14 +20,41 @@
 #define RELAY7 33
 #define RELAY8 32
 #define webserver_status 15
+#define MAXPLOT 2 //shld be 8 for (ABCDEFGH plots)..2 for testing
+#define acceptable_threshold_margin 1000
 
+bool PUMP1_ON = false;
+bool PUMP2_ON = false;
 
-//mapping of pins to plot id
-std::map<std::string, int> relay_pins = {{"A",RELAY1},{"B",RELAY2},{"C",RELAY3},{"D",RELAY4},{"E",RELAY5},{"F",RELAY6},{"G",RELAY7},{"H",RELAY8}};
+int pump1_on_duration = 0;
+int pump2_on_duration = 0;
 
-//mapping of water pump to plot id
-std::map<std::string, int> pump_pins = {{"A",PUMP1},{"B",PUMP1},{"C",PUMP1},{"D",PUMP1},{"E",PUMP2},{"F",PUMP2},{"G",PUMP2},{"H",PUMP2}};
+#define RX 5
+#define TX 18
 
+#define MCU_ID "smcu1"
+#define ADDR_LENGTH 10
+
+using namespace websockets;
+
+struct RelayInfo {
+    int pump_pins;
+    int relay_pins;
+    int prev_time;
+    int watering_duration;
+    bool watering_status;
+};
+
+std::map<std::string, RelayInfo> watering_mechanism = {
+        {"A", {PUMP1, RELAY1, 0, 0, false}},
+        {"B", {PUMP1, RELAY2, 0, 0, false}},
+        {"C", {PUMP2, RELAY3, 0, 0, false}},
+        {"D", {PUMP2, RELAY4, 0, 0, false}},
+        {"E", {PUMP1, RELAY5, 0, 0, false}},
+        {"F", {PUMP1, RELAY6, 0, 0, false}},
+        {"G", {PUMP2, RELAY7, 0, 0, false}},
+        {"H", {PUMP2, RELAY8, 0, 0, false}}
+    };
 
 //------------------------
 //5 --> HC12 Tx
@@ -68,13 +95,7 @@ void connect_webSocket(const char* );
 //    <3, smcu1, fmcu1, 65>
 //=============================================================================
 
-#define RX 5
-#define TX 18
 
-#define MCU_ID "smcu1"
-#define ADDR_LENGTH 10
-
-using namespace websockets;
 
 const byte numChars = 32; //array size
 char receivedChars[numChars];
@@ -167,9 +188,10 @@ void loop() {
 
   socket.poll(); //transfer control to appropriate function to handle event message
 
-
+  unsigned long current_time_trigger_pump = millis();
   unsigned long currentTime_req_moisture = millis(); 
-  
+
+  //15 minutes gap to execute new moisture req
   if ((currentTime_req_moisture - previousTime_req_moisture >= request_moisture_interval) && req_moisture_data == false) 
   {
     Serial.println("");
@@ -178,15 +200,29 @@ void loop() {
     req_moisture_data = true;
     previousTime_req_moisture = currentTime_req_moisture;
   }
-  
+
+  //2 seconds gap to iterate all plot req
   if ((currentTime_req_moisture - previousTime_plots_command >= send_plots_command_interval) && req_moisture_data == true) 
   {
     reqData_HC12(&iterate_command);
     previousTime_plots_command = currentTime_req_moisture;
   }
 
+  if((current_time_trigger_pump - watering_mechanism["A"].prev_time >= watering_mechanism["A"].watering_duration) && (watering_mechanism["A"].watering_status == true))
+  {
+    digitalWrite(watering_mechanism["A"].relay_pins,LOW);
+    watering_mechanism["A"].watering_status = false;
+  }
+
+  if((current_time_trigger_pump - watering_mechanism["B"].prev_time >= watering_mechanism["B"].watering_duration) && (watering_mechanism["B"].watering_status == true))
+  {
+    digitalWrite(watering_mechanism["B"].relay_pins,LOW);
+    watering_mechanism["B"].watering_status = false;
+  }
+
   
-  
+
+ 
 
   recvWithStartEndMarkers(); //handle if data receive through UART
   if (newData == true && doneExecuteOperation == false) {
@@ -195,7 +231,7 @@ void loop() {
         // because strtok() used in parseDataFromHC12() replaces the commas with \0
         strcpy(tempChars, receivedChars);  
         parseDataFromHC12(&myData);
-        showParsedData(myData); //display parsed data
+//        showParsedData(myData); //display parsed data
 
         mcu_operation(myData); //pass struct to function
         doneExecuteOperation = true;
@@ -208,15 +244,7 @@ void loop() {
   while (Serial.available()) {
     HC12.write(Serial.read());
   }
-//  delay(200);
 
-  //check if there is new that is not executed using function..check destination is correct..ignore if wrong
-//  if(newData == false && doneExecuteOperation == false && myData.destination_addr == MCU_ID)
-//  {
-//    Serial.println("executing this part");
-//    mcu_operation(myData); //pass struct to function
-//    doneExecuteOperation = true;
-//  }
 
 }//end void loop
 
@@ -236,7 +264,7 @@ void handleMessage(WebsocketsMessage message)
   if(message.data()!= "Welcome to the server.")
   {
     parseJsonData(message.data());
-    display_struct(myData);
+//    display_struct(myData);
     mcu_operation(myData); //pass struct to function
   }
   
