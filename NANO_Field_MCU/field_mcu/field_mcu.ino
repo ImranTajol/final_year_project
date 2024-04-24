@@ -5,8 +5,9 @@
 #include <Wire.h> //for I2C devices
 #include <Adafruit_ADS1X15.h>  //ADS1115 library
 #include <ctype.h>
+#include <EEPROM.h>
 
-#define mcu_id "fmcu2"
+#define mcu_id "fmcu1"
 #define ADDR_LENGTH 10
 #define PLOT_1 "A"
 #define PLOT_2 "B"
@@ -67,6 +68,11 @@ Adafruit_ADS1115 ads1; //ADS1115 ADDR DEFAULT OR PIN CONNECT TO GND (0x48)
 Adafruit_ADS1115 ads2; //ADS1115 ADDR PIN CONNECT TO VDD (0x49)
 const float multiplier = 0.1875F;
 
+
+int address_plot1 = 0;
+int address_plot2 = 0;
+int val_plot1 = 0;
+int val_plot2 = 0;
 
 #include "field_function.h" //adress after define variables
 
@@ -148,8 +154,7 @@ void loop() {
         
         //read moisture sensor.. get the average
         avg_moisture = read_soil_moisture(payloadFromESP);
-        Serial.println("Done read soil moisture!");
-        delay(200);
+        delay(100);
 
       
         //pack data into format <C,SA,DA,P>...
@@ -160,10 +165,11 @@ void loop() {
         doneTransmit = true;
         break;
   
-      }//end case 3:
+      }//end case 3
+
       
       default:
-      Serial.println("Address besides 3 received");
+      Serial.println("Command besides 3 received");
       break;
     }
   
