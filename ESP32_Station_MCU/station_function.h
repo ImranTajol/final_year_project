@@ -34,7 +34,7 @@ void reqData_HC12(int* iterate_command)
     HC12.write(packets[*iterate_command][i]);
   }
   
-  if(*iterate_command == 2)
+  if(*iterate_command == MAXPLOT)
   {
     req_moisture_data = false;
     *iterate_command = 0;
@@ -161,11 +161,32 @@ void mcu_operation(struct parsedData myStruct)
       socket.send(jsonString.c_str(),len);
       
       break;
-      }
+     }
 
-    case 4:
-      //sensors detect low moisture level
-      break;
+//    case 4:
+//    {
+//      //myStruct.payload ==> the difference to reach threshold
+//      //if threshold = 30000 & current_val = 23000, payload = 7000
+//      //need some experiment to know how many seconds to reach 7000
+//      int duration = 0;
+//      //sensors detect low moisture level
+//      if(myStruct.destination_addr != MCU_ID)
+//      {
+//        break;
+//      }
+//
+//      if(myStruct.payload =< acceptable_threshold_margin)
+//      {
+//        //aim to avoid small difference to execute..irrelevant
+//        break;
+//      }
+//      
+//      digitalWrite(relay_pins[myStruct.plot_id], HIGH);
+//      digitalWrite(pump_pins[myStruct.plot_id], HIGH);
+//      delay(duration);
+//       
+//      break;
+//    }
 
     case 5:
       //update field microcontroller eeprom data
@@ -208,16 +229,13 @@ void water_all()
 
 void water_plot(struct parsedData myStruct)
 {
+  //need calculation based on the moisture_diff (payload)
+  int watering_duration = 2000;
   
-    digitalWrite(pump_pins[myStruct.plot_id],HIGH);
-    delay(500);
-    digitalWrite(relay_pins[myStruct.plot_id],HIGH);
-    delay(2000);
-
-    digitalWrite(pump_pins[myStruct.plot_id],LOW);
-    delay(500);
-    digitalWrite(relay_pins[myStruct.plot_id],LOW);
-
+  digitalWrite(watering_mechanism[myStruct.plot_id].relay_pins,HIGH);
+  digitalWrite(watering_mechanism[myStruct.plot_id].pump_pins,HIGH);
+  watering_mechanism[myStruct.plot_id].watering_status = true;
+  watering_mechanism[myStruct.plot_id].prev_time = millis();
 }
 
 
