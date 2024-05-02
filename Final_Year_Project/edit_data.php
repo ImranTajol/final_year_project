@@ -1,5 +1,7 @@
 <?php include "function.php";
 
+      include "db_connect.php";
+
 $button_id = $_GET['button_id'];
 
 ?>
@@ -69,8 +71,23 @@ $button_id = $_GET['button_id'];
       <label for="datePlant">Date Plant:</label>
       <input required class="form-control" type="date" id="datePlant" name="datePlant">
 
-      <label for="microcontrollerID">Microcontroller ID:</label>
-      <input required type="text" id="microcontrollerID" name="microcontrollerID">
+      <!-- <label for="microcontrollerID">Microcontroller ID:</label>
+      <input required type="text" id="microcontrollerID" name="microcontrollerID"> -->
+
+      <div class="form-group">
+          <label for="" class="control-label">MCU_ID </label>
+          <select name="selected_mcu" id="selected_mcu" class="form-control select2">
+              <option value=""></option>
+              <?php 
+                  $mcu_id = $conn->query("SELECT * FROM registered_mcu");
+                  while ($row = $mcu_id->fetch_assoc()):
+              ?>
+                  <option value="<?php echo $row['mcu_id'] ?>" <?php echo isset($from_mcu_id) && $from_mcu_id == $row['id'] ? "selected" : '' ?>>
+                      <?php echo $row['mcu_id'] ?>
+                  </option>
+              <?php endwhile; ?>
+          </select>
+      </div>
 
     </form>
 
@@ -100,7 +117,9 @@ $button_id = $_GET['button_id'];
       plot_id: $("#plot_id").val(),
       vegeType: $("#vegeType").val(),
       datePlant: $("#datePlant").val(),
-      microcontrollerID: $("#microcontrollerID").val(),
+      // microcontrollerID: $("#microcontrollerID").val(),
+      selected_mcu: $("#selected_mcu").val(),
+
     };
     
   $.ajax({
