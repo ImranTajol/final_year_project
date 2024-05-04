@@ -27,10 +27,12 @@ Class Action {
         include "db_connect.php";
 
         extract($_POST);
-        $vegeType = ucwords($_POST['vegeType']);
+        // $vegeType = ucwords($_POST['vegeType']);
+        $vegeType = ucwords($_POST['selected_vege']);
         $datePlant = $_POST['datePlant'];
         // $microcontrollerID = $_POST['microcontrollerID'];
         $mcu_id = $_POST['selected_mcu'];
+        
 
         if(empty($vegeType) || empty($datePlant) || empty($mcu_id))
         {
@@ -80,7 +82,7 @@ Class Action {
             return json_encode(array("status" => "error", "message" => "Data field cannot be empty. Please insert value!"));
         }
         
-        $stmt_find_diff = $conn->prepare("SELECT * FROM farm_details WHERE plot_id=?");
+        $stmt_find_diff = $conn->prepare("SELECT * FROM farm_details WHERE plot_id=? ORDER BY date_created DESC LIMIT 1");
         $stmt_find_diff->bind_param("s", $plot_id);
         $stmt_find_diff->execute();
         $result = $stmt_find_diff->get_result(); // get the mysqli result
