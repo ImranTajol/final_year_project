@@ -1,12 +1,4 @@
 <style>
-.form-popup {
-  display: none;
-  position: fixed;
-  bottom: 0;
-  right: 15px;
-  border: 3px solid #f1f1f1;
-  z-index: 9;
-}
 
 .data_display {
   font-size: 20px;
@@ -19,9 +11,23 @@ h1 {
     font-weight: bold; /* Make the text bold */
     text-align: center; /* Center the text */
     text-transform: uppercase; /* Convert text to uppercase */
-    margin-top: 50px; /* Add margin at the bottom for spacing */
     font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
+
+h3 {
+    color: black; /* Dark green color */
+    font-size: 36px; /* Adjust font size as needed */
+    font-weight: bold; /* Make the text bold */
+    text-align: center; /* Center the text */
+    text-transform: uppercase; /* Convert text to uppercase */
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+}
+
+.center-btn {
+    display: block;
+    margin: 0 auto;
+}
+
 
 
 </style>
@@ -63,12 +69,13 @@ $home_page_display = [
 ?>
 
 
-<h1>Programmable IoT Watering System</h1>
 
-      <div class='square-container'>
+    <div  class='square-container'>
+
+      <h1>Programmable IoT Watering System</h1>
 
       <!-- water all plots button -->
-        <button class="btn btn-primary"  onclick="water_all()">Water All</button>
+        <button class="btn btn-primary center-btn"  onclick="water_all()">Water All</button>
 
         <?php
           // Divide the $home_page_display array into two parts
