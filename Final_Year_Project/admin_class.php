@@ -27,18 +27,21 @@ Class Action {
         include "db_connect.php";
 
         extract($_POST);
-        $vegeType = $_POST['vegeType'];
+        // $vegeType = ucwords($_POST['vegeType']);
+        $vegeType = ucwords($_POST['selected_vege']);
         $datePlant = $_POST['datePlant'];
-        $microcontrollerID = $_POST['microcontrollerID'];
+        // $microcontrollerID = $_POST['microcontrollerID'];
+        $mcu_id = $_POST['selected_mcu'];
+        
 
-        if(empty($vegeType) || empty($datePlant) || empty($microcontrollerID))
+        if(empty($vegeType) || empty($datePlant) || empty($mcu_id))
         {
             return json_encode(array("status" => "error", "message" => "Data field cannot be empty. Please insert value!"));
         }
 
 
         $stmt_update = $conn->prepare("INSERT INTO farm_details (plot_id, plant_type, mcu_id, date_plant) VALUES (?, ?, ?, ?)");
-        $stmt_update->bind_param('ssss', $plot_id, $vegeType, $microcontrollerID, $datePlant);
+        $stmt_update->bind_param('ssss', $plot_id, $vegeType, $mcu_id, $datePlant);
 
             // Execute the prepared statement
                 if ($stmt_update->execute()) {
@@ -56,7 +59,7 @@ Class Action {
     }
 
 
-    function water_plot()
+    function water_plot() //function will return the remaining moisture level needed (threshold - current)
     {
         //retrieve from db
         //date planted minus current date = time diff
@@ -79,7 +82,7 @@ Class Action {
             return json_encode(array("status" => "error", "message" => "Data field cannot be empty. Please insert value!"));
         }
         
-        $stmt_find_diff = $conn->prepare("SELECT * FROM farm_details WHERE plot_id=?");
+        $stmt_find_diff = $conn->prepare("SELECT * FROM farm_details WHERE plot_id=? ORDER BY date_created DESC LIMIT 1");
         $stmt_find_diff->bind_param("s", $plot_id);
         $stmt_find_diff->execute();
         $result = $stmt_find_diff->get_result(); // get the mysqli result
@@ -87,6 +90,7 @@ Class Action {
 
         $mcu_id = $user["mcu_id"];
         $crop = $user['plant_type']."_crop";
+        $current_moisture = $user["moisture_lvl"];
 
         $date_plant = new DateTime($user["date_plant"], new DateTimeZone('Asia/Jakarta')); //create datetime object using retrieved date (string)
 
@@ -98,10 +102,13 @@ Class Action {
         $stmt_find_level->execute();
         $result = $stmt_find_level->get_result(); // get the mysqli result
         $user = $result->fetch_assoc(); // fetch data   \
+        $threshold = $user["moisture_level"];
 
         $conn->close();
 
-        return json_encode(array("status" => "success", "mcu_id" => $mcu_id, "moisture_level" => $user["moisture_level"], "plot_id" => $plot_id));
+        $moisture_diff = $threshold - $current_moisture;
+
+        return json_encode(array("status" => "success", "mcu_id" => $mcu_id, "moisture_level" =>  $moisture_diff, "plot_id" => $plot_id));
 
 
     }

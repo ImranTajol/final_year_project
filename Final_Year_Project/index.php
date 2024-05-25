@@ -13,12 +13,17 @@
 
   <title>IoT Programmable Vegetable Farm</title> 
   <style>
+
+    * {
+      margin: 0;  
+      padding: 0;
+    }
+
     /* Styling for the squares */
     .square-container {
       display: flex;
       flex-direction: column;
       align-items: center;
-      margin-top: 50px; /* Adjust spacing */
     }
 
     .row {
@@ -49,6 +54,11 @@
         align-items: center;
         justify-content: center;
         text-align: center;
+    }
+
+    body{
+        background-color:bisque;
+
     }
     
   </style>

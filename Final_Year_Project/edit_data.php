@@ -1,5 +1,7 @@
 <?php include "function.php";
 
+      include "db_connect.php";
+
 $button_id = $_GET['button_id'];
 
 ?>
@@ -57,31 +59,54 @@ $button_id = $_GET['button_id'];
     }
   </style>
 </head>
+
 <body>
-  <div class="form-container">
-    <form id = "plant_data" method="POST">
+<div class="form-container">
+    <form id="plant_data" method="POST">
+        <input type="hidden" id="plot_id" name="plot_id" value=<?php echo $button_id?>>
+        
+        <div class="form-group">
+          <label for="selected_vege">Vegetable Type:</label>
+          <select name="selected_vege" id="selected_vege" class="form-control">
+            <option value=""></option>
+            <?php 
+                $vege = $conn->query("SELECT DISTINCT crop_type FROM registered_crop");
+                while ($row = $vege->fetch_assoc()):
+                  ?>
+                <option value="<?php echo $row['crop_type'] ?>" >
+                  <?php echo ucwords($row['crop_type']) ?>
+                </option>
+                <?php endwhile; ?>
+              </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="datePlant">Date Plant:</label>
+                <input required class="form-control" type="date" id="datePlant" name="datePlant">
+            </div>
+            
+            <div class="form-group">
+            <label for="selected_mcu">Microcontroller ID:</label>
+            <select name="selected_mcu" id="selected_mcu" class="form-control">
+                <option value=""></option>
+                <?php 
+                $mcu_id = $conn->query("SELECT * FROM registered_mcu");
+                while ($row = $mcu_id->fetch_assoc()):
+                ?>
+                <option value="<?php echo $row['mcu_id'] ?>" <?php echo isset($from_mcu_id) && $from_mcu_id == $row['id'] ? "selected" : '' ?>>
+                    <?php echo $row['mcu_id'] ?>
+                </option>
+                <?php endwhile; ?>
+            </select>
+        </div>
 
-      <input type="hidden" id="plot_id" name="plot_id" value=<?php echo $button_id?>>
-
-      <label for="vegeType">Vege Type:</label>
-      <input required type="text" id="vegeType" name="vegeType">
-
-      <label for="datePlant">Date Plant:</label>
-      <input required class="form-control" type="date" id="datePlant" name="datePlant">
-
-      <label for="microcontrollerID">Microcontroller ID:</label>
-      <input required type="text" id="microcontrollerID" name="microcontrollerID">
-
+        <div class="d-flex justify-content-center">
+            <button class="btn btn-success mr-2" form="plant_data">Save</button>
+            <a class="btn btn-danger" href="./index.php?">Cancel</a>
+        </div>
     </form>
+</div>
 
-    <div>
-      <div class="d-flex w-100 justify-content-center align-items-center">
-          <button class="btn btn-success" form="plant_data" >Save</button>
-          <a class="btn btn-danger" href="./index.php?">Cancel</a>
-      </div>
-    </div>
-
-  </div>
 
 
 
@@ -98,9 +123,12 @@ $button_id = $_GET['button_id'];
 
     var formData = {
       plot_id: $("#plot_id").val(),
-      vegeType: $("#vegeType").val(),
+      selected_vege:$("#selected_vege").val(),
       datePlant: $("#datePlant").val(),
-      microcontrollerID: $("#microcontrollerID").val(),
+      selected_mcu: $("#selected_mcu").val(),
+      // vegeType: $("#vegeType").val(),
+      // microcontrollerID: $("#microcontrollerID").val(),
+
     };
     
   $.ajax({
