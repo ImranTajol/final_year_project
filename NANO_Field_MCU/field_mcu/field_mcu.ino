@@ -54,6 +54,7 @@ char payloadFromESP[2];
 
 boolean newData = false;
 boolean doneTransmit = false; // to check current data already transmit
+boolean trigger_adhoc = false;
 boolean check_adhoc = true;
 
 int BAUD_RATE = 9600;
@@ -75,6 +76,9 @@ int address_plot1 = 0;
 int address_plot2 = 0;
 int val_plot1 = 0;
 int val_plot2 = 0;
+uint16_t prev_time_check_adhoc = 0;
+int adhoc_time = 0;
+int check_adhoc_time = 0;
  
 
 #include "field_function.h" //adress after define variables
@@ -119,12 +123,12 @@ void loop() {
   }
 
   //adhoc func... transmit command 4 if sensor reading < 25% or approx. 20000
-  all_time_read_moisture(ads1,ads2);
+  if(trigger_adhoc == false && check_adhoc == true){
+    all_time_read_moisture(ads1,ads2);
+  }
 
-  uint16_t prev_time = millis();
-
-  if((millis() - prev_time > 5000) && check_adhoc == false){
-    check_adhoc = true;
+  //check after 5 minutes
+  if((millis() - adhoc_time > 5*60*1000) && trigger_adhoc == true && check_adhoc == false){
     all_time_read_moisture(ads1,ads2);
   }
 

@@ -184,20 +184,24 @@ void all_time_read_moisture(Adafruit_ADS1115& adsInstance1, Adafruit_ADS1115& ad
 
     if(adc1 > threshold){
       Serial.println("ADC1 is LOW ON WATER");
-      //send command 4 to server
+
       formatData(formattedData, &command_low_water, mcu_id, mcu_id, plot1, &adc1);
       txData_HC12(formattedData);
+      trigger_adhoc = true;
       check_adhoc = false; //need to check after water
+      adhoc_time = millis();
     }
     else if(adc2 > threshold){
       Serial.println("ADC2 is LOW ON WATER");
-      //send command 4 to server
-      //the code...
+
       formatData(formattedData, &command_low_water, mcu_id, mcu_id, plot2, &adc2);
       txData_HC12(formattedData);
+      trigger_adhoc = true;
       check_adhoc = false;
+      adhoc_time = millis();
     }
     else{
+      trigger_adhoc = false;
       check_adhoc = true;
     }
   
