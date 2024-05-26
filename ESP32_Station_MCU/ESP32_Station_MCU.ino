@@ -20,12 +20,16 @@
 #define RELAY7 33
 #define RELAY8 32
 #define webserver_status 15
-#define MAXPLOT 2 //shld be 8 for (ABCDEFGH plots)..2 for testing
+#define wifi_status 4
+#define MAXPLOT 3 //shld be 7 (0 to 7) for (ABCDEFGH plots)..2 for testing
 #define acceptable_threshold_margin 1000
 
 bool PUMP1_ON = false;
 bool PUMP2_ON = false;
-
+bool PUMP1_FIRST_ON = true;
+bool PUMP2_FIRST_ON = true;
+int pump1_prev = 0;
+int pump2_prev = 0;
 int pump1_on_duration = 0;
 int pump2_on_duration = 0;
 
@@ -37,6 +41,13 @@ int pump2_on_duration = 0;
 
 using namespace websockets;
 
+WebsocketsClient socket;
+const char* websocketServer = "ws://bk2011018-fyp-web-socket-server.glitch.me/";
+boolean connected = false;
+
+const char* ssid = "UltramanCosmos";
+const char* password = "Tuhau123";
+
 struct RelayInfo {
     int pump_pins;
     int relay_pins;
@@ -46,14 +57,14 @@ struct RelayInfo {
 };
 
 std::map<std::string, RelayInfo> watering_mechanism = {
-        {"A", {PUMP1, RELAY1, 0, 0, false}},
-        {"B", {PUMP1, RELAY2, 0, 0, false}},
-        {"C", {PUMP2, RELAY3, 0, 0, false}},
-        {"D", {PUMP2, RELAY4, 0, 0, false}},
-        {"E", {PUMP1, RELAY5, 0, 0, false}},
-        {"F", {PUMP1, RELAY6, 0, 0, false}},
-        {"G", {PUMP2, RELAY7, 0, 0, false}},
-        {"H", {PUMP2, RELAY8, 0, 0, false}}
+        {"A", {PUMP1, RELAY1, 0, 7000, false}},
+        {"B", {PUMP1, RELAY2, 0, 3000, false}},
+        {"C", {PUMP2, RELAY3, 0, 5000, false}},
+        {"D", {PUMP2, RELAY4, 0, 4000, false}},
+        {"E", {PUMP1, RELAY5, 0, 3000, false}},
+        {"F", {PUMP1, RELAY6, 0, 3000, false}},
+        {"G", {PUMP2, RELAY7, 0, 3000, false}},
+        {"H", {PUMP2, RELAY8, 0, 3000, false}}
     };
 
 //------------------------
@@ -121,14 +132,6 @@ int iterate_command = 0;
 bool req_moisture_data = true;
 
 
-WebsocketsClient socket;
-const char* websocketServer = "ws://192.168.1.9:81/";
-boolean connected = false;
-
-const char* ssid = "UltramanCosmos";
-const char* password = "Tuhau123";
-
-
 ////variable for data from HC12 (using global variable)
 //uint8_t command = 0;
 //char SA[ADDR_LENGTH];
@@ -173,6 +176,7 @@ void setup() {
   pinMode(RELAY7,OUTPUT);
   pinMode(RELAY8,OUTPUT);
   pinMode(webserver_status,OUTPUT);
+//  pinMode(wifi_status,OUTPUT);
 
 }
 
@@ -192,7 +196,7 @@ void loop() {
   unsigned long currentTime_req_moisture = millis(); 
 
   //15 minutes gap to execute new moisture req
-  if ((currentTime_req_moisture - previousTime_req_moisture >= request_moisture_interval) && req_moisture_data == false) 
+  if (connected && (currentTime_req_moisture - previousTime_req_moisture >= request_moisture_interval) && req_moisture_data == false) 
   {
     Serial.println("");
     Serial.println("-----------------");
@@ -202,11 +206,29 @@ void loop() {
   }
 
   //2 seconds gap to iterate all plot req
-  if ((currentTime_req_moisture - previousTime_plots_command >= send_plots_command_interval) && req_moisture_data == true) 
+  if (connected && (currentTime_req_moisture - previousTime_plots_command >= send_plots_command_interval) && req_moisture_data == true) 
   {
     reqData_HC12(&iterate_command);
     previousTime_plots_command = currentTime_req_moisture;
   }
+
+//-------------- PUMP ------------------
+
+  if((current_time_trigger_pump - pump1_prev >= pump1_on_duration) && (PUMP1_ON == true))
+  {
+    digitalWrite(PUMP1,LOW);
+    PUMP1_ON = false;
+    PUMP1_FIRST_ON = true;
+  }
+
+  if((current_time_trigger_pump - pump2_prev >= pump2_on_duration) && (PUMP2_ON == true))
+  {
+    digitalWrite(PUMP2,LOW);
+    PUMP2_ON = false;
+    PUMP2_FIRST_ON = true;
+  }
+
+//--------------------------------
 
   if((current_time_trigger_pump - watering_mechanism["A"].prev_time >= watering_mechanism["A"].watering_duration) && (watering_mechanism["A"].watering_status == true))
   {
@@ -218,6 +240,16 @@ void loop() {
   {
     digitalWrite(watering_mechanism["B"].relay_pins,LOW);
     watering_mechanism["B"].watering_status = false;
+  }
+  if((current_time_trigger_pump - watering_mechanism["C"].prev_time >= watering_mechanism["C"].watering_duration) && (watering_mechanism["C"].watering_status == true))
+  {
+    digitalWrite(watering_mechanism["C"].relay_pins,LOW);
+    watering_mechanism["C"].watering_status = false;
+  }
+  if((current_time_trigger_pump - watering_mechanism["D"].prev_time >= watering_mechanism["D"].watering_duration) && (watering_mechanism["D"].watering_status == true))
+  {
+    digitalWrite(watering_mechanism["D"].relay_pins,LOW);
+    watering_mechanism["D"].watering_status = false;
   }
 
   
@@ -284,6 +316,8 @@ void handleEvent(WebsocketsEvent event, WSInterfaceString data)
 void connect_Wifi()
 {
   // Connect to Wi-Fi network with SSID and password
+//  digitalWrite(wifi_status, HIGH);
+  digitalWrite(webserver_status, HIGH);
   Serial.print("Connecting to ");
   Serial.println(ssid);
   WiFi.begin(ssid, password);
@@ -296,6 +330,7 @@ void connect_Wifi()
   Serial.println("WiFi connected.");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
+//  digitalWrite(wifi_status, LOW);
 }
 
 void connect_webSocket(const char* websocketServer)
@@ -309,7 +344,7 @@ void connect_webSocket(const char* websocketServer)
   }
   else
   {
-    digitalWrite(webserver_status, HIGH);
+//    digitalWrite(webserver_status, HIGH);
     Serial.println("Connection failed.");
   }
   

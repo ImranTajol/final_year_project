@@ -163,30 +163,23 @@ void mcu_operation(struct parsedData myStruct)
       break;
      }
 
-//    case 4:
-//    {
-//      //myStruct.payload ==> the difference to reach threshold
-//      //if threshold = 30000 & current_val = 23000, payload = 7000
-//      //need some experiment to know how many seconds to reach 7000
-//      int duration = 0;
-//      //sensors detect low moisture level
-//      if(myStruct.destination_addr != MCU_ID)
-//      {
-//        break;
-//      }
-//
-//      if(myStruct.payload =< acceptable_threshold_margin)
-//      {
-//        //aim to avoid small difference to execute..irrelevant
-//        break;
-//      }
-//      
-//      digitalWrite(relay_pins[myStruct.plot_id], HIGH);
-//      digitalWrite(pump_pins[myStruct.plot_id], HIGH);
-//      delay(duration);
-//       
-//      break;
-//    }
+    case 4:
+    {
+      String jsonString;
+  
+      doc["C"] = myStruct.command;
+      doc["SA"] = myStruct.source_addr;
+      doc["DA"] = myStruct.destination_addr;
+      doc["PLOT_ID"] = myStruct.plot_id;
+      doc["P"] = myStruct.payload;
+
+      size_t len = serializeJson(doc, jsonString);
+      Serial.println(jsonString);
+      socket.send(jsonString.c_str(),len);
+      
+       
+      break;
+    }
 
     case 5:
       //update field microcontroller eeprom data
@@ -230,7 +223,39 @@ void water_all()
 void water_plot(struct parsedData myStruct)
 {
   //need calculation based on the moisture_diff (payload)
-  int watering_duration = 2000;
+  int watering_duration = 10000;
+
+  //for PUMP 1
+  if(watering_mechanism[myStruct.plot_id].pump_pins == PUMP1)
+  {
+    if(watering_duration > pump1_on_duration)
+    {
+      pump1_on_duration = watering_duration;
+    }
+    if(PUMP1_FIRST_ON == true) //only update the millis time if first time PUMP is ON
+    {
+      pump1_prev = millis();
+    }
+
+    PUMP1_ON = true; //status for pump is ON
+    PUMP1_FIRST_ON = false;
+  }
+
+  //for PUMP 2
+  if(watering_mechanism[myStruct.plot_id].pump_pins == PUMP2)
+  {
+    if(watering_duration > pump2_on_duration)
+    {
+      pump2_on_duration = watering_duration;
+    }
+    if(PUMP2_FIRST_ON == true) //only update the millis time if first time PUMP is ON
+    {
+      pump2_prev = millis();
+    }
+
+    PUMP2_ON = true;//status for pump is ON
+    PUMP2_FIRST_ON = false;
+  }
   
   digitalWrite(watering_mechanism[myStruct.plot_id].relay_pins,HIGH);
   digitalWrite(watering_mechanism[myStruct.plot_id].pump_pins,HIGH);

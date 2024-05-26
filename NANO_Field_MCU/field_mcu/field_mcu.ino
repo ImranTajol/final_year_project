@@ -7,10 +7,11 @@
 #include <ctype.h>
 #include <EEPROM.h>
 
-#define mcu_id "fmcu1"
+//#define mcu_id "fmcu2"
+char mcu_id[6] = "fmcu2";
+#define PLOT_1 "C"
+#define PLOT_2 "D"
 #define ADDR_LENGTH 10
-#define PLOT_1 "A"
-#define PLOT_2 "B"
 
 
 //HC12 pins connection------------------------
@@ -53,6 +54,8 @@ char payloadFromESP[2];
 
 boolean newData = false;
 boolean doneTransmit = false; // to check current data already transmit
+boolean trigger_adhoc = false;
+boolean check_adhoc = true;
 
 int BAUD_RATE = 9600;
 SoftwareSerial HC12(10, 11); //RX(connect to module Tx),TX(Connect to module Rx)
@@ -73,6 +76,10 @@ int address_plot1 = 0;
 int address_plot2 = 0;
 int val_plot1 = 0;
 int val_plot2 = 0;
+uint16_t prev_time_check_adhoc = 0;
+int adhoc_time = 0;
+int check_adhoc_time = 0;
+ 
 
 #include "field_function.h" //adress after define variables
 
@@ -104,7 +111,7 @@ void loop() {
         // <3, smcu1, fmcu1, A> --> <3,smcu1,fmcu1,A> (no spaces)
         remove_spaces(tempChars,tempChars);
         parseData();
-        showParsedData();
+//        showParsedData();
 //        newData = false;
         
     }
@@ -113,6 +120,16 @@ void loop() {
   // ==== Sending data from one HC-12 to another via the Serial Monitor
   while (Serial.available()) {
     HC12.write(Serial.read());
+  }
+
+  //adhoc func... transmit command 4 if sensor reading < 25% or approx. 20000
+  if(trigger_adhoc == false && check_adhoc == true){
+    all_time_read_moisture(ads1,ads2);
+  }
+
+  //check after 5 minutes
+  if((millis() - adhoc_time > 5*60*1000) && trigger_adhoc == true && check_adhoc == false){
+    all_time_read_moisture(ads1,ads2);
   }
 
 
@@ -124,8 +141,6 @@ void loop() {
     { 
       case 3:
       {
-        Serial.println("Command is 3");
-
         //check destination..if wrong, ignore
         int DA_check = check_destination_address();
         int SA_check = check_source_address();
@@ -142,12 +157,16 @@ void loop() {
           Serial.println("Source Address empty!");
           break;
         }
-
-        
+      
 
         if(strcmp(payloadFromESP,PLOT_1) != 0 && strcmp(payloadFromESP,PLOT_2) != 0) //only ascii A and B
         {
-          Serial.println("Assigned plot to mcu are A(65) & B(66)!");
+          Serial.print("Assigned plot to MCU[");
+          Serial.print(mcu_id);
+          Serial.print("]: ");
+          Serial.print(PLOT_1);
+          Serial.print(" & ");
+          Serial.println(PLOT_2);
           break;
         }
     
@@ -155,8 +174,7 @@ void loop() {
         //read moisture sensor.. get the average
         avg_moisture = read_soil_moisture(payloadFromESP);
         delay(100);
-
-      
+        
         //pack data into format <C,SA,DA,P>...
         formatData(formattedData, &command, SA, DA, payloadFromESP, &avg_moisture);
         
