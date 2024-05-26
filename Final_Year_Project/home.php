@@ -143,7 +143,8 @@ $home_page_display = [
     //placeholder
     var MCU_ID = 'smcu1'; //station MCU 1
 
-    var socket = new WebSocket('ws://192.168.1.9:81');
+    // var socket = new WebSocket('ws://192.168.1.9:81');
+    var socket = new WebSocket('ws://bk2011018-fyp-web-socket-server.glitch.me/');
 
     socket.onmessage = function(event)
     {
@@ -156,17 +157,28 @@ $home_page_display = [
       console.log(resp["PLOT_ID"]);
       console.log(resp["P"]);
       
-      let label = "label_";
-      document.getElementById(label.concat(resp["PLOT_ID"])).innerHTML = resp["P"];
+      if(resp["SA"]!="smcu1"){
+
+        let label = "label_";
+        document.getElementById(label.concat(resp["PLOT_ID"])).innerHTML = resp["P"];
+      }
 
       //add function to store to log
       switch(resp["C"])
       {
         case 3:
-          //create log for moisture level(including update at farm details table)
-          //aim: display the homepage usin 1 table
-          store_to_log((resp["PLOT_ID"]), (resp["P"])); //args: plot id and moisture reading from field
-          break;
+          {
+            //create log for moisture level(including update at farm details table)
+            //aim: display the homepage usin 1 table
+            store_to_log((resp["PLOT_ID"]), (resp["P"])); //args: plot id and moisture reading from field
+            break;
+          }
+
+        case 4:
+          {
+            auto_water_plot(resp["PLOT_ID"])
+            break;
+          }
 
         default:
           console.log("Default at switch(resp[C])");
@@ -184,14 +196,14 @@ $home_page_display = [
       window.location.href = 'redirect.php?letter=' + letter;
     }
 
-    function sendToWebSocket_command_1(payload)
-    {
-      var command = 1;
+    // function sendToWebSocket_command_1(payload)
+    // {
+    //   var command = 1;
 
-      //watering operation send to ESP32 as it controls the pump and valves
-      var data = JSON.stringify({"C":command,"SA":MCU_ID,"DA":MCU_ID, "P":payload})
-      socket.send(data);
-    }
+    //   //watering operation send to ESP32 as it controls the pump and valves
+    //   var data = JSON.stringify({"C":command,"SA":MCU_ID,"DA":MCU_ID, "P":payload})
+    //   socket.send(data);
+    // }
 
 
     function sendToWebSocket_command_2(mcu_id, plot_id, payload)
@@ -199,7 +211,7 @@ $home_page_display = [
       var command = 2;
 
       //watering operation send to ESP32 as it controls the pump and valves
-      var data = JSON.stringify({"C":command,"SA":MCU_ID,"DA":MCU_ID, "PLOT_ID":plot_id, "P":payload})
+      var data = JSON.stringify({"C":command,"SA":MCU_ID,"DA":mcu_id, "PLOT_ID":plot_id, "P":payload})
       socket.send(data);
     }
 
