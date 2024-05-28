@@ -71,16 +71,18 @@ Class Action {
 
         include "db_connect.php";
 
-        extract($_POST);
+        // extract($_POST);
+        // var_dump($_POST);
+        
+        if(!isset($_POST['plot_id']) || empty($_POST['plot_id'])) //check if empty
+        {
+            return json_encode(array("status" => "POST error", "message" => "Data field cannot be empty. Please insert value!"));
+        }
+
 
         $plot_id = $_POST['plot_id'];   //containing which plot to water
 
-        // var_dump($_POST);
-
-        if(empty($plot_id)) //check if empty
-        {
-            return json_encode(array("status" => "error", "message" => "Data field cannot be empty. Please insert value!"));
-        }
+        error_log("plot_id: " . $plot_id);
         
         $stmt_find_diff = $conn->prepare("SELECT * FROM farm_details WHERE plot_id=? ORDER BY date_created DESC LIMIT 1");
         $stmt_find_diff->bind_param("s", $plot_id);
@@ -121,27 +123,27 @@ Class Action {
 
         include "db_connect.php";
 
-        extract($_POST);
+        // extract($_POST);
 
         $plot_id = $_POST['plot_id'];
         $moisture_lvl = $_POST['moisture_lvl'];
 
 
-        $stmt_insert_log = $conn->prepare("INSERT INTO moisture_log (plot_id, moisture_lvl) VALUES (?, ?)");
-        $stmt_insert_log->bind_param('ss', $plot_id, $moisture_lvl);
+        // $stmt_insert_log = $conn->prepare("INSERT INTO moisture_log (plot_id, moisture_lvl) VALUES (?, ?)");
+        // $stmt_insert_log->bind_param('ss', $plot_id, $moisture_lvl);
 
-        // Execute the prepared statement
-        if ($stmt_insert_log->execute()) 
-        {
-            //if success do nothing
-        } 
+        // // Execute the prepared statement
+        // if ($stmt_insert_log->execute()) 
+        // {
+        //     //if success do nothing
+        // } 
 
-        else 
-        {
-            echo "Error: " . $stmt_insert_log->error;
-        }
+        // else 
+        // {
+        //     echo "Error: " . $stmt_insert_log->error;
+        // }
 
-        $stmt_insert_log->close();
+        // $stmt_insert_log->close();
 
         //update farm details table
         // easier to display data in home page using single table
