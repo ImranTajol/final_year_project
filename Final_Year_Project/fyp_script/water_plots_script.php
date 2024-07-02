@@ -12,7 +12,7 @@ $client = new Client($wsServerUrl, [
     ]
 ]);
 
-function sendToWebSocket_command_2($mcu_id, $plot_id, $moisture_level)
+function sendToWebSocket_command_2($mcu_id, $plot_id, $plant_age, $moisture_level)
 {
     $source_mcu = "smcu1";
     $command = 2;
@@ -22,6 +22,7 @@ function sendToWebSocket_command_2($mcu_id, $plot_id, $moisture_level)
         "SA" => $source_mcu,
         "DA" => $mcu_id,
         "PLOT_ID" => $plot_id,
+        "PLANT_AGE" => $plant_age,
         "P" => $moisture_level
     ]);
 
@@ -31,7 +32,8 @@ function sendToWebSocket_command_2($mcu_id, $plot_id, $moisture_level)
 
 //need to run a function
 $url = 'http://localhost/Final_Year_Project/ajax.php?action=water_plot';
-$arr = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+// $arr = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+$arr = ['A', 'B', 'C', 'D'];
 
 foreach($arr as $a){
     
@@ -48,7 +50,7 @@ foreach($arr as $a){
     $resp = json_decode($response,true);
 
 
-    $tempData = sendToWebSocket_command_2($resp["mcu_id"],$resp["plot_id"],$resp["moisture_level"]);
+    $tempData = sendToWebSocket_command_2($resp["mcu_id"],$resp["plot_id"],$resp["plant_age"],$resp["moisture_level"]);
 
     // echo $tempData;
 

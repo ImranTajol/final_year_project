@@ -1,36 +1,59 @@
 <style>
+  .data_display {
+    font-size: 20px;
+    font-weight: bold;
+  }
 
-.data_display {
-  font-size: 20px;
-  font-weight: bold;
-}
+  h1 {
+    color: black;
+    font-size: 36px;
+    font-weight: bold;
+    text-align: center;
+    text-transform: uppercase;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  }
 
-h1 {
-    color: black; /* Dark green color */
-    font-size: 36px; /* Adjust font size as needed */
-    font-weight: bold; /* Make the text bold */
-    text-align: center; /* Center the text */
-    text-transform: uppercase; /* Convert text to uppercase */
-    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-}
-
-h3 {
-    color: black; /* Dark green color */
-    font-size: 36px; /* Adjust font size as needed */
-    font-weight: bold; /* Make the text bold */
-    text-align: center; /* Center the text */
-    text-transform: uppercase; /* Convert text to uppercase */
+  h3 {
+    color: black;
+    font-size: 20px; /* Adjusted font size for better fit */
+    font-weight: bold;
+    text-align: center;
+    text-transform: uppercase;
     font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
-}
+  }
 
-.center-btn {
+  .center-btn {
     display: block;
     margin: 0 auto;
-}
+  }
 
+  .square-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 
+  .row {
+    display: flex;
+    justify-content: center;
+    margin: 5px 0;
+  }
 
+  .square {
+    width: 300px; /* Adjusted width for smaller squares */
+    height: 300px; /* Adjusted height for smaller squares */
+    border: 1px solid #000;
+    margin: 5px;
+    padding: 10px;
+    box-sizing: border-box;
+    text-align: center;
+  }
+
+  .inner-div {
+    margin: 5px 0;
+  }
 </style>
+
 
 <?php
 
@@ -66,6 +89,9 @@ $home_page_display = [
 
 ];
 
+$MOST_WET = 17000;
+$MOST_DRY = 21000;
+
 ?>
 
 
@@ -89,7 +115,10 @@ $home_page_display = [
                   <div class="square">
                       <h3>Plot <?php echo $plot[0]; ?></h3>
                       <div class="inner-div">Vege Type: <span class="data_display"><?php echo $plot[1]["plant_type"]; ?></span> </div>
-                      <div class="inner-div">Moist Level:  <span id="label_<?php echo $plot[0]; ?>" class="data_display"><?php echo $plot[1]["moisture_lvl"]; ?></span></div>
+                      <div class="inner-div">Moist Level:  <span id="label_<?php echo $plot[0]; ?>" class="data_display"><?php  
+                      echo(100 - floor((intval($plot[1]["moisture_lvl"]) - $MOST_WET)/ ($MOST_DRY - $MOST_WET) * 100));
+                      ?>
+                    </span><span class="data_display">%</span></div>
                       <div class="inner-div">Plant Age: 
                           <span class="data_display">
                               <?php 
@@ -114,7 +143,7 @@ $home_page_display = [
                   <div class="square">
                       <h3>Plot <?php echo $plot[0]; ?></h3>
                       <div class="inner-div">Vege Type: <span class="data_display"><?php echo $plot[1]["plant_type"]; ?></span> </div>
-                      <div class="inner-div">Moist Level:  <span id="label_<?php echo $plot[0]; ?>" class="data_display"><?php echo $plot[1]["moisture_lvl"]; ?></span></div>
+                      <div class="inner-div">Moist Level:  <span id="label_<?php echo $plot[0]; ?>" class="data_display"><?php echo $plot[1]["moisture_lvl"]; ?></span><span class="data_display">%</span></div>
                       <div class="inner-div">Plant Age: 
                           <span class="data_display">
                               <?php 
@@ -140,27 +169,34 @@ $home_page_display = [
 
   <script>
 
+    var socket = new WebSocket('ws://bk2011018-fyp-web-socket-server.glitch.me/');
     //placeholder
     var MCU_ID = 'smcu1'; //station MCU 1
+    var MOST_DRY = parseInt(<?php echo $MOST_DRY?>);
+    var MOST_WET = parseInt(<?php echo $MOST_WET?>);
+
 
     // var socket = new WebSocket('ws://192.168.1.9:81');
-    var socket = new WebSocket('ws://bk2011018-fyp-web-socket-server.glitch.me/');
 
     socket.onmessage = function(event)
     {
       
-      console.log(event.data);
+      // console.log(event.data);
       resp = JSON.parse(event.data);
-      console.log(resp["C"]);
-      console.log(resp["SA"]);
-      console.log(resp["DA"]);
-      console.log(resp["PLOT_ID"]);
-      console.log(resp["P"]);
+      console.log(resp["C"]+'|'+resp["PLOT_ID"]+'|'+resp["P"]);
+      // console.log(resp["SA"]);
+      // console.log(resp["DA"]);
+      // console.log(resp["PLOT_ID"]);
+      // console.log(resp["P"]);
       
       if(resp["SA"]!="smcu1"){
 
+        // var percentage = (parseInt(resp["PLOT_ID"] - MOST_WET) / (MOST_DRY - MOST_WET)) * 100;
+        var percentage = 100 - Math.floor((resp["P"] - MOST_WET)/ (MOST_DRY - MOST_WET) * 100);
+
         let label = "label_";
-        document.getElementById(label.concat(resp["PLOT_ID"])).innerHTML = resp["P"];
+        // document.getElementById(label.concat(resp["PLOT_ID"])).innerHTML = resp["P"];
+        document.getElementById(label.concat(resp["PLOT_ID"])).innerHTML = percentage;
       }
 
       //add function to store to log
@@ -206,12 +242,12 @@ $home_page_display = [
     // }
 
 
-    function sendToWebSocket_command_2(mcu_id, plot_id, payload)
+    function sendToWebSocket_command_2(mcu_id, plot_id, plant_age, payload)
     {
       var command = 2;
 
       //watering operation send to ESP32 as it controls the pump and valves
-      var data = JSON.stringify({"C":command,"SA":MCU_ID,"DA":mcu_id, "PLOT_ID":plot_id, "P":payload})
+      var data = JSON.stringify({"C":command,"SA":MCU_ID,"DA":mcu_id, "PLOT_ID":plot_id,"PLANT_AGE":plant_age, "P":payload})
       socket.send(data);
     }
 
@@ -279,13 +315,18 @@ $home_page_display = [
           if(resp.status == "success")
           {
             //print data for debug
-            console.log("Auto water after sense moisture");
-            console.log(resp.mcu_id);
-            console.log(resp.plot_id);
-            console.log(resp.moisture_level);
+            console.log("Auto Water Plot ("+ resp.plot_id+")");
+            // console.log(resp.mcu_id);
+            // console.log(resp.plot_id);
+            // console.log(resp.moisture_level);
+            // console.log(resp.plant_age);
             
-            sendToWebSocket_command_2(resp.mcu_id, resp.plot_id, resp.moisture_level);
+            sendToWebSocket_command_2(resp.mcu_id, resp.plot_id, resp.plant_age, resp.moisture_level);
             //setTimeout(function() {location.href = "./index.php";},2000)
+          }
+          else if(resp.status == "optimum")
+          {
+            console.log("Plot "+resp.plot_id+" in optimum moisture level");
           }
           else
           {
@@ -321,7 +362,7 @@ $home_page_display = [
         }
 
         $.ajax({
-        url: 'ajax.php?action=water_plot',
+        url: 'ajax.php?action=manual_water_plot',
         data: formData,
         method: 'POST',
         success: function(resp) {
@@ -334,7 +375,7 @@ $home_page_display = [
             // console.log(resp.plot_id);
             // console.log(resp.moisture_level);
             
-            sendToWebSocket_command_2(resp.mcu_id, resp.plot_id, resp.moisture_level);
+            sendToWebSocket_command_2(resp.mcu_id, resp.plot_id, resp.plant_age, resp.moisture_level);
 
             //setTimeout(function() {location.href = "./index.php";},2000)
             
@@ -372,7 +413,7 @@ $home_page_display = [
 
     
     $.ajax({
-        url: 'ajax.php?action=water_plot',
+        url: 'ajax.php?action=manual_water_plot',
         data: formData,
         method: 'POST',
         success: function(resp) {
@@ -381,11 +422,11 @@ $home_page_display = [
           if(resp.status == "success")
           {
             //print data for debug
-            console.log(resp.mcu_id);
+            // console.log(resp.mcu_id);
             console.log(resp.plot_id);
-            console.log(resp.moisture_level);
+            // console.log(resp.moisture_level);
             
-            sendToWebSocket_command_2(resp.mcu_id, resp.plot_id, resp.moisture_level);
+            sendToWebSocket_command_2(resp.mcu_id, resp.plot_id, resp.plant_age, resp.moisture_level);
 
             //setTimeout(function() {location.href = "./index.php";},2000)
             
