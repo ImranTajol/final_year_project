@@ -21,3 +21,9 @@ if($action == 'store_log'){
 	if($login)
 		echo $login;
 }
+
+if($action == 'manual_water_plot'){
+	$login = $crud->manual_water_plot();
+	if($login)
+		echo $login;
+}
