@@ -8,7 +8,6 @@
 #include <map>
 #include <vector>
 
-
 #define PUMP1 22        
 #define PUMP2 23
 #define RELAY1 21 //gpio 13 of expansion board is faulty
@@ -45,8 +44,8 @@ WebsocketsClient socket;
 const char* websocketServer = "ws://bk2011018-fyp-web-socket-server.glitch.me/";
 boolean connected = false;
 
-const char* ssid = "UltramanCosmos";
-const char* password = "Tuhau123";
+const char* ssid = "Cobra-chann";
+const char* password = "imrantajol";
 
 struct RelayInfo {
     int pump_pins;
@@ -101,8 +100,6 @@ void connect_webSocket(const char* );
     // Command 1: water all plots
     // command 2: water specific plot
     // Command 3: station request data from field
-    // command 4: sensors detect low moisture level
-    // command 5: update field microcontroller eeprom data
 //    <3, smcu1, fmcu1, 65>
 //=============================================================================
 
@@ -124,10 +121,10 @@ byte incomingByte;
 String readBuffer = "";
 String receivedData = "";
 
-const unsigned long request_moisture_interval = 20000; //in milliseconds
-const unsigned long send_plots_command_interval = 2000;
-unsigned long previousTime_req_moisture = 0;
-unsigned long previousTime_plots_command = 0;
+const unsigned int request_moisture_interval = 20000; //in milliseconds
+const unsigned int send_plots_command_interval = 2000;
+unsigned int previousTime_req_moisture = 0;
+unsigned int previousTime_plots_command = 0;
 int iterate_command = 0;
 bool req_moisture_data = true;
 
@@ -144,6 +141,7 @@ struct parsedData{
   char source_addr[ADDR_LENGTH];
   char destination_addr[ADDR_LENGTH];
   char plot_id[2];
+  uint8_t plant_age;
   int payload;
 };
 
@@ -177,12 +175,33 @@ void setup() {
   pinMode(RELAY8,OUTPUT);
   pinMode(webserver_status,OUTPUT);
 //  pinMode(wifi_status,OUTPUT);
+//
+
+  digitalWrite(PUMP1,HIGH);
+  digitalWrite(PUMP2,HIGH);
+  digitalWrite(RELAY1,HIGH);
+  digitalWrite(RELAY2,HIGH);
+  digitalWrite(RELAY3,HIGH);
+  digitalWrite(RELAY4,HIGH);
+  digitalWrite(RELAY5,HIGH);
+  digitalWrite(RELAY6,HIGH);
+  digitalWrite(RELAY7,HIGH);
+  digitalWrite(RELAY8,HIGH);
 
 }
 
 void loop() {
-  delay(10);
+  delay(50);
   //connected bool is set when websocket successful connection
+////  Serial.println("");
+//  Serial.print(digitalRead(RELAY1));
+//  Serial.print("  |  ");
+//  Serial.print(digitalRead(RELAY2));
+//  Serial.print("  |  ");
+//  Serial.print(digitalRead(RELAY3));
+//  Serial.print("  |  ");
+//  Serial.println(digitalRead(RELAY4));
+//  Serial.println("");
   if(!connected)
   {
     Serial.println("Connecting to WebSocket server");
@@ -216,39 +235,40 @@ void loop() {
 
   if((current_time_trigger_pump - pump1_prev >= pump1_on_duration) && (PUMP1_ON == true))
   {
-    digitalWrite(PUMP1,LOW);
+    digitalWrite(PUMP1,HIGH);
     PUMP1_ON = false;
     PUMP1_FIRST_ON = true;
   }
 
   if((current_time_trigger_pump - pump2_prev >= pump2_on_duration) && (PUMP2_ON == true))
   {
-    digitalWrite(PUMP2,LOW);
+    digitalWrite(PUMP2,HIGH);
     PUMP2_ON = false;
     PUMP2_FIRST_ON = true;
   }
 
 //--------------------------------
 
+  //RELAY USED IN THIS PROJECT IS ACTIVE LOW
   if((current_time_trigger_pump - watering_mechanism["A"].prev_time >= watering_mechanism["A"].watering_duration) && (watering_mechanism["A"].watering_status == true))
   {
-    digitalWrite(watering_mechanism["A"].relay_pins,LOW);
+    digitalWrite(watering_mechanism["A"].relay_pins,HIGH);
     watering_mechanism["A"].watering_status = false;
   }
 
   if((current_time_trigger_pump - watering_mechanism["B"].prev_time >= watering_mechanism["B"].watering_duration) && (watering_mechanism["B"].watering_status == true))
   {
-    digitalWrite(watering_mechanism["B"].relay_pins,LOW);
+    digitalWrite(watering_mechanism["B"].relay_pins,HIGH);
     watering_mechanism["B"].watering_status = false;
   }
   if((current_time_trigger_pump - watering_mechanism["C"].prev_time >= watering_mechanism["C"].watering_duration) && (watering_mechanism["C"].watering_status == true))
   {
-    digitalWrite(watering_mechanism["C"].relay_pins,LOW);
+    digitalWrite(watering_mechanism["C"].relay_pins,HIGH);
     watering_mechanism["C"].watering_status = false;
   }
   if((current_time_trigger_pump - watering_mechanism["D"].prev_time >= watering_mechanism["D"].watering_duration) && (watering_mechanism["D"].watering_status == true))
   {
-    digitalWrite(watering_mechanism["D"].relay_pins,LOW);
+    digitalWrite(watering_mechanism["D"].relay_pins,HIGH);
     watering_mechanism["D"].watering_status = false;
   }
 

@@ -9,6 +9,9 @@ void water_plot(struct parsedData myStruc);
 void txData_HC12(char* s);
 void display_struct(struct parsedData d);
 void reqData_HC12();
+void parseJsonData(String data_from_ws);
+void recvWithStartEndMarkers();
+void parseDataFromHC12();
 
 
 void reqData_HC12(int* iterate_command)
@@ -67,6 +70,7 @@ void parseJsonData(String data_from_ws)
   strcpy(myData.source_addr, doc["SA"]);
   strcpy(myData.destination_addr, doc["DA"]);
   strcpy(myData.plot_id, doc["PLOT_ID"]);
+  myData.plant_age = doc["PLANT_AGE"];
   myData.payload = doc["P"];
 //  int command = doc["C"];
 //  const char * sa = doc["SA"];
@@ -220,14 +224,37 @@ void water_all()
   Serial.println("");
 }
 
-void water_plot(struct parsedData myStruct)
+void water_plot(parsedData myStruct)
 {
   //need calculation based on the moisture_diff (payload)
   int watering_duration = 10000;
+  int result = 100 - myStruct.plant_age;
+
+//days --> | 25 | 50 | 75 | 100 |
+//time --> | 5s | 10s | 15s | 20s |
+
+  if(result > 75)
+  {
+    watering_mechanism[myStruct.plot_id].watering_duration = 20000; //water 20 seconds
+  }
+  else if(result > 50)
+  {
+    watering_mechanism[myStruct.plot_id].watering_duration = 15000; //water 15 seconds
+  }
+  else if(result > 25)
+  {
+    watering_mechanism[myStruct.plot_id].watering_duration = 10000; //water 10 seconds
+  }
+  else
+  {
+    watering_mechanism[myStruct.plot_id].watering_duration = 5000; //water 5 seconds
+  }
 
   //for PUMP 1
   if(watering_mechanism[myStruct.plot_id].pump_pins == PUMP1)
   {
+    Serial.print("Watering ");
+    Serial.println(myStruct.plot_id);
     if(watering_duration > pump1_on_duration)
     {
       pump1_on_duration = watering_duration;
@@ -244,6 +271,8 @@ void water_plot(struct parsedData myStruct)
   //for PUMP 2
   if(watering_mechanism[myStruct.plot_id].pump_pins == PUMP2)
   {
+    Serial.print("Watering ");
+    Serial.println(myStruct.plot_id);
     if(watering_duration > pump2_on_duration)
     {
       pump2_on_duration = watering_duration;
@@ -257,8 +286,8 @@ void water_plot(struct parsedData myStruct)
     PUMP2_FIRST_ON = false;
   }
   
-  digitalWrite(watering_mechanism[myStruct.plot_id].relay_pins,HIGH);
-  digitalWrite(watering_mechanism[myStruct.plot_id].pump_pins,HIGH);
+  digitalWrite(watering_mechanism[myStruct.plot_id].relay_pins,LOW); //ACTIVE LOW
+  digitalWrite(watering_mechanism[myStruct.plot_id].pump_pins,LOW); 
   watering_mechanism[myStruct.plot_id].watering_status = true;
   watering_mechanism[myStruct.plot_id].prev_time = millis();
 }
