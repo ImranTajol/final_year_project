@@ -1,13 +1,16 @@
-This repository stores the source code for Final Year Project 
-Course: Electronic (Computer) Engineering
+**Project Title: Prototyping Programmable IoT Watering System for Large Vegetable Farm**
 
-Project Title: Prototyping Programmable IoT Watering System for Large Vegetable Farm
-Aim: To provide a programmable/customizable watering mechanism for different plots in a vegetable farm.
-      Ex: 1 vege land divided into 8 plots. Each plot is planted with different type of vegetable. Amount of water supplied need to be tailored based on the type of vegetable.
+**Aim:** To provide a programmable/customizable watering mechanism for different plots in a vegetable farm.
+**Objectives:**
+      * To design an automated, efficient and cost-effective watering system for large vegetable farm incorporating IoT.
+      * To supply optimum amount of water for crops based on its age.
+      * To develop a controller mechanism for farmer to operate farm remotely.                
+      * To develop a customizable and flexible watering mechanism for each subplots within a farm.
 
 <a href="https://github.com/ImranTajol/final_year_project/tree/main/FYP_Images">Project Images</a>
 
 **System Overview**
+
 ![image](https://github.com/ImranTajol/final_year_project/blob/main/FYP_Images/Block%20Diagram_Overall%20System.jpg)
 
 **Overview Flowchart**
