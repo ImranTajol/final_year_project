@@ -39,4 +39,4 @@ Broadcast data to Arduino MCU via HC12 module (433 MHz)
 Parse received data.. Data format: <C,SA,DA,P> ~ <Command, Source, Destination, Payload>
 MCU will check Destination Addr == Assigned address. If match, execute function based on command & payload.
 
-![image](/FYP_Images/Prototype_FYP_PCB Design.jpg?raw=true)
+![image](./FYP_Images/Prototype_FYP_PCB Design.jpg)
